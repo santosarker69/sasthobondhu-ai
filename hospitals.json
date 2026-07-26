@@ -1,0 +1,37 @@
+[
+  {
+    "district": "Dhaka",
+    "name": "Dhaka Medical College Hospital",
+    "beds": 35
+  },
+  {
+    "district": "Narayanganj",
+    "name": "Khanpur Hospital",
+    "beds": 12
+  },
+  {
+    "district": "Chattogram",
+    "name": "Chottogram Medical College Hospital",
+    "beds": 20
+  },
+  {
+    "district": "Cumilla",
+    "name": "Cumilla medical College hospital",
+    "beds": 24
+  },
+  {
+    "district": "Noakhali",
+    "name": "Noakhali Govt hospital",
+    "beds": 12
+  },
+  {
+    "district": "Sylhet",
+    "name": "Sylhet Govt hospital",
+    "beds": 25
+  },
+  {
+    "district": "Rajhshahi",
+    "name": "Rajhshahi Govt hospital",
+    "beds": 28
+  }
+]

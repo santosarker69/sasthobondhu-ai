@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>HealthBondhu AI Call</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+
+background:#111827;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+height:100vh;
+
+color:white;
+
+}
+
+.phone{
+
+width:360px;
+
+height:740px;
+
+background:#000;
+
+border-radius:40px;
+
+overflow:hidden;
+
+box-shadow:0px 0px 40px rgba(0,0,0,.5);
+
+position:relative;
+
+}
+
+.content{
+
+height:100%;
+
+display:flex;
+
+flex-direction:column;
+
+align-items:center;
+
+justify-content:center;
+
+}
+
+.logo{
+
+width:120px;
+
+height:120px;
+
+border-radius:50%;
+
+background:white;
+
+padding:10px;
+
+}
+
+.name{
+
+margin-top:20px;
+
+font-size:30px;
+
+font-weight:bold;
+
+}
+
+.status{
+
+margin-top:10px;
+
+font-size:18px;
+
+color:#4ade80;
+
+}
+
+.timer{
+
+margin-top:15px;
+
+font-size:26px;
+
+letter-spacing:2px;
+
+}
+
+.bottom{
+
+position:absolute;
+
+bottom:40px;
+
+width:100%;
+
+display:flex;
+
+justify-content:center;
+
+}
+
+.end{
+
+width:80px;
+
+height:80px;
+
+border-radius:50%;
+
+background:#ef4444;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+font-size:35px;
+
+cursor:pointer;
+
+transition:.3s;
+
+}
+
+.end:hover{
+
+transform:scale(1.08);
+
+}
+
+
+.voice-animation{
+
+display:flex;
+
+justify-content:center;
+
+align-items:flex-end;
+
+gap:6px;
+
+height:80px;
+
+margin-top:35px;
+
+opacity:0;
+
+transition:.4s;
+
+}
+
+.voice-animation span{
+
+width:8px;
+
+height:15px;
+
+background:#00e676;
+
+border-radius:20px;
+
+animation:wave .8s infinite;
+
+}
+
+.voice-animation span:nth-child(2){
+
+animation-delay:.1s;
+
+}
+
+.voice-animation span:nth-child(3){
+
+animation-delay:.2s;
+
+}
+
+.voice-animation span:nth-child(4){
+
+animation-delay:.3s;
+
+}
+
+.voice-animation span:nth-child(5){
+
+animation-delay:.4s;
+
+}
+
+@keyframes wave{
+
+0%{
+
+height:15px;
+
+}
+
+50%{
+
+height:55px;
+
+}
+
+100%{
+
+height:15px;
+
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="phone">
+
+<div class="content">
+
+<img src="{{ url_for('static', filename='logo.jpg') }}" class="logo">
+
+<div class="name">
+
+স্বাস্থ্যবন্ধু AI
+
+</div>
+
+<div class="status" id="status">
+
+Ready to Call
+
+</div>
+
+<div class="timer" id="timer" style="display:none;">
+
+00:00
+
+</div>
+
+<div class="voice-animation" id="voiceAnimation">
+
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+
+</div>
+
+</div>
+
+<div class="bottom">
+
+<div class="end" id="callButton">
+
+📞
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+const button = document.getElementById("callButton");
+
+const status = document.getElementById("status");
+
+const timer = document.getElementById("timer");
+
+let sec = 0;
+
+let interval;
+
+let connected = false;
+
+let recognition;
+
+function startListening() {
+    if (!("webkitSpeechRecognition" in window)) {
+
+        alert("Speech Recognition Not Supported");
+
+        return;
+    
+    }
+
+    recognition = new webkitSpeechRecognition();
+
+    recognition.lang = "bn-BD";
+
+    recognition.continuous = false;
+
+    recognition.interimResults = false;
+
+    recognition.onstart = function(){
+
+        console.log("Listening...");
+
+    };
+
+    recognition.onresult = async function(event){
+
+        let speech = event.results[0][0].transcript;
+
+        console.log("User:", speech);
+    
+        const response = await fetch("/voice",{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify({
+                message:speech
+            })
+
+        });
+
+        const data = await response.json();
+
+        if(recognition){
+
+            recognition.stop();
+
+        }
+
+        const audio = new Audio("/static/" + data.audio);
+
+        audio.playbackRate = 1.35;
+
+        audio.play();
+
+        audio.onended = function(){
+
+            if(connected){
+
+                startListening();
+
+            }
+
+        }
+
+    };
+
+    recognition.onerror = function(){
+
+        console.log("Mic Error");
+
+    };
+    recognition.onend=function(){
+
+    };
+
+    recognition.start();
+
+}
+
+button.onclick = function(){
+
+    if(!connected){
+
+        status.innerHTML="📞 Calling...";
+
+        button.style.pointerEvents="none";
+
+        setTimeout(function(){
+
+            connected=true;
+
+            status.innerHTML="🟢 Connected";
+            setTimeout(function(){
+
+                startListening();
+
+            },1000);
+
+            document.getElementById("voiceAnimation").style.opacity="1";
+
+            timer.style.display="block";
+
+            button.innerHTML="🔴";
+
+            button.style.pointerEvents="auto";
+
+            interval=setInterval(function(){
+
+                sec++;
+
+                let m=Math.floor(sec/60);
+
+                let s=sec%60;
+
+                timer.innerHTML=
+
+                String(m).padStart(2,"0")
+
+                +":"
+
+                +
+
+                String(s).padStart(2,"0");
+
+            },1000);
+
+        },1000);
+
+    }
+
+    else{
+
+        connected=false;
+
+        clearInterval(interval);
+
+        sec=0;
+
+        timer.innerHTML="00:00";
+
+        timer.style.display="none";
+
+        document.getElementById("voiceAnimation").style.opacity="0";
+
+        status.innerHTML="Ready to Call";
+
+        if(recognition){
+
+            recognition.stop();
+
+        }
+
+        button.innerHTML="📞";
+
+    }
+
+}
+
+</script>
+
+</body>
+
+</html>
+#before vosk 

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Admin Dashboard</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f5f7fa;
+padding:40px;
+}
+
+.container{
+max-width:800px;
+margin:auto;
+background:white;
+padding:30px;
+border-radius:15px;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+.card{
+background:#eef6ff;
+padding:15px;
+margin:10px 0;
+border-radius:10px;
+}
+
+h1{
+text-align:center;
+}
+
+.recent-box{
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    margin-top:20px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>📊 স্বাস্থ্যবন্ধু Dashboard</h1>
+
+<div class="card">
+মোট প্রশ্ন: {{ data.total_users }}
+</div>
+
+<div class="card">
+জ্বর: {{ data["জ্বর"] }}
+</div>
+
+<div class="card">
+কাশি: {{ data["কাশি"] }}
+</div>
+
+<div class="card">
+মাথা ব্যথা: {{ data["মাথা ব্যথা"] }}
+</div>
+
+<div class="card">
+পেট ব্যথা: {{ data["পেট ব্যথা"] }}
+</div>
+
+<div class="card">
+অন্যান্য: {{ data["অন্যান্য"] }}
+</div>
+<div class="card">
+🎫 টিকিট বুকিং:
+{{ tickets.total_tickets }}
+</div>
+
+</div>
+
+<div class="card">
+
+    <h3>সর্বাধিক রিপোর্টকৃত সমস্যা:</h3>
+
+    <h2>{{ top_disease }}</h2>
+
+</div>
+
+<div class="card">
+
+    <h3>📍 সর্বাধিক ব্যবহারকারী এলাকা</h3>
+
+    <h2>{{ top_district }}</h2>
+
+</div>
+
+<div class="recent-box">
+    <h2>Disease Statistics:</h2>
+
+    <p>🤒 জ্বর: {{ data['জ্বর'] }}</p>
+
+    <p>😷 কাশি: {{ data['কাশি'] }}</p>
+
+    <p>🤕 মাথা ব্যথা: {{ data['মাথা ব্যথা'] }}</p>
+
+    <p>🤢 পেট ব্যথা: {{ data['পেট ব্যথা'] }}</p>
+
+    <p>📌 অন্যান্য: {{ data['অন্যান্য'] }}</p>
+
+</div>
+
+
+<div class="recent-box">
+    <h2>District Statistics</h2>
+
+    <p>📍 Dhaka: {{ district_stats["Dhaka"] }}</p>
+
+    <p>📍 Narayanganj: {{ district_stats["Narayanganj"] }}</p>
+
+    <p>📍 Chattogram: {{ district_stats["Chattogram"] }}</p>
+
+    <p>📍 Unknown: {{ district_stats["Unknown"] }}</p>
+
+</div>
+
+
+<div class="recent-box">
+    <h2>Recent Conversations:</h2>
+
+{% for chat in recent_chats %}
+
+<p>🧑 {{ chat.message }}</p>
+
+<hr>
+
+{% endfor %}
+
+</div>
+
+
+
+
+</body>
+</html>

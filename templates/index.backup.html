@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>স্বাস্থ্যবন্ধু AI</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body{
+            background: #f1f5f9;
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container{
+            width: 100%;
+            max-width: 1000px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header{
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 15px;
+            border-bottom: 1px solid #ddd;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            position: relative;
+        }
+
+        .header h1{
+            color: #0284c7;
+            font-size: 36px;
+        }
+
+        /* === লোগোটিকে লেখার সাথে সুন্দরভাবে সারিবদ্ধ করার জন্য নতুন স্টাইল === */
+        .header-title-logo {
+            height: 50px; /* লেখার সাইজ অনুযায়ী লোগোর সাইজ সেট করা হয়েছে */
+            vertical-align: middle; /* লেখা এবং লোগো যেন একই সমান্তরালে থাকে */
+            margin-right: 10px; /* লোগো এবং লেখার মাঝের দূরত্ব */
+        }
+
+        .tagline{
+            color: #666;
+            margin-top: 8px;
+            font-size: 15px;
+        }
+
+        .version{
+            color: #0284c7;
+            font-size: 13px;
+            margin-top: 5px;
+            margin-left: 80px;
+            font-weight: bold;
+        }
+
+        .header-center{
+            text-align: center;
+        }
+
+        /* === TOP BUTTONS CORNER DESIGN POSITION === */
+        .top-buttons{
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        /* === COMMON STYLES FOR BOTH BUTTONS === */
+        #hotlineBtn, #futureBtn {
+            width: 76px;
+            height: 76px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            font-family: Arial, sans-serif;
+            text-decoration: none;
+        }
+
+        /* Button Inside Icon & Text Layout */
+        .btn-icon {
+            font-size: 22px;
+            margin-bottom: 2px;
+            display: inline-block;
+        }
+        .btn-text {
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        /* === 1. HOTLINE BUTTON STYLE (BLUE) === */
+        #hotlineBtn {
+            background: #0052cc; 
+            border: none;
+            color: white;
+        }
+        #hotlineBtn .btn-text {
+            font-size: 13px; 
+            letter-spacing: 0.5px;
+        }
+
+        /* === 2. FUTURE UPDATE BUTTON STYLE (WHITE/BLUE BORDER) === */
+        #futureBtn {
+            background: #ffffff;
+            border: 2px solid #0052cc;
+            color: #0052cc;
+        }
+        #futureBtn .btn-text {
+            font-size: 10px; 
+        }
+
+        /* Hover Effects */
+        #hotlineBtn:hover, #futureBtn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        /* === CHAT & INPUT AREA STYLES === */
+        .chat-area{
+            background: #f8fafc;
+            flex: 1;
+            border-radius: 15px;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .user-message{
+            background: #e0f2fe;
+            padding: 12px 15px;
+            border-radius: 15px;
+            max-width: 75%;
+            margin-left: auto;
+            margin-bottom: 10px;
+        }
+
+        .ai-message{
+            background: #ffffff;
+            padding: 12px 15px;
+            border-radius: 15px;
+            border: 1px solid #e2e8f0;
+            max-width: 75%;
+            margin-bottom: 20px;
+        }
+
+        .label{
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .input-area{
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 15px;
+            border-top: 1px solid #ddd;
+        }
+
+        form{
+            display: flex;
+            gap: 10px;
+        }
+
+        input{
+            flex: 1;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 12px;
+            font-size: 16px;
+        }
+
+        button[type="submit"] {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #chatForm button[type="button"] {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover{
+            background: #0369a1;
+        }
+
+        .empty-state{
+            text-align: center;
+            color: #666;
+            margin-top: 80px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <div class="header-center">
+            <h1><img src="{{ url_for('static', filename='logo.jpg') }}" alt="স্বাস্থ্যবন্ধু AI লোগো" class="header-title-logo">স্বাস্থ্যবন্ধু AI</h1>
+            <p class="tagline">Your First Ever AI-Based Health Advisor</p>
+            <p class="version">স্বাস্থ্যবন্ধু AI v1.0 Prototype</p>
+        </div>
+
+        <div class="top-buttons">
+            <button id="hotlineBtn" title="Future AI Hotline. Currently under process.">
+                <span class="btn-icon">📞</span>
+                <span class="btn-text">16263</span>
+            </button>
+
+            <button id="futureBtn" title="Future Updates">
+                <span class="btn-icon">🚀</span>
+                <span class="btn-text">ফিউচার আপডেট</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="chat-area">
+        {% if chat_history|length == 0 %}
+        <div class="empty-state">
+            <h2>👋 স্বাগতম!</h2>
+            <p>আপনার স্বাস্থ্য সমস্যা লিখুন এবং স্বাস্থ্যবন্ধু AI-এর সাহায্য নিন।</p>
+        </div>
+        {% endif %}
+
+        {% for chat in chat_history %}
+        <div class="user-message">
+            <div class="label">👤 রোগী:</div>
+            {{ chat.user }}
+        </div>
+
+        <div class="ai-message">
+             <div class="label">🤖 স্বাস্থ্যবন্ধু:</div>
+             <span class="reply-text">{{ chat.ai }}</span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="input-area">
+        <form method="POST" id="chatForm">            
+            <input type="text" id="message" name="message" placeholder="আপনার সমস্যা লিখুন..." required>
+            <button type="button" onclick="startListening()">🎤 Speak</button>
+            <button type="submit">Send</button>
+        </form>
+    </div>
+
+</div>
+
+<script>
+let recognition;
+let silenceTimer;
+
+function startListening() {
+    // আগের কোনো রেকর্ডিং চালু থাকলে তা বন্ধ করার জন্য
+    if (recognition) {
+        recognition.stop();
+    }
+
+    recognition = new webkitSpeechRecognition();
+    recognition.lang = "bn-BD";
+    
+    // === প্রধান পরিবর্তনসমূহ ===
+    recognition.continuous = true; // কথা থামালেও সে জোর করে শোনা বন্ধ করবে না
+    recognition.interimResults = true; // রিয়েল-টাইমে কথা ডিটেক্ট করে ইনপুট বক্সে দেখাবে
+    recognition.maxAlternatives = 1;
+
+    // ইউজারকে বোঝানোর জন্য বাটনের টেক্সট পরিবর্তন
+    const speakBtn = document.querySelector("#chatForm button[type='button']");
+    const originalText = speakBtn.innerHTML;
+    speakBtn.innerHTML = "🎙️ Listening...";
+    speakBtn.style.background = "#dc2626"; // লাইভ রেকর্ডিং বোঝাতে লাল কালার (ঐচ্ছিক)
+
+    recognition.start();
+
+    recognition.onresult = function(event) {
+        // একদম শেষ কথাটি খুঁজে বের করার জন্য লুপ
+        let finalTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal || event.results[i][0].transcript) {
+                finalTranscript += event.results[i][0].transcript;
+            }
+        }
+
+        // ইনপুট বক্সে রিয়েল-টাইম লেখাটি বসাবে
+        if(finalTranscript.trim() !== "") {
+            document.getElementById("message").value = finalTranscript;
+        }
+
+        // === সাইলেন্স টাইমার লজিক ===
+        // ইউজার কথা বলা বন্ধ করলে কতক্ষণ অপেক্ষা করবে (এখানে ২০০০ মিলিসেকেন্ড বা ২ সেকেন্ড দেওয়া)
+        clearTimeout(silenceTimer);
+        silenceTimer = setTimeout(() => {
+            recognition.stop(); // রেকর্ডিং বন্ধ করো
+            speakBtn.innerHTML = originalText; // বাটন আগের মতো করো
+            speakBtn.style.background = "#2563eb";
+            
+            // ইনপুট খালি না থাকলে ফর্ম সাবমিট করো
+            if(document.getElementById("message").value.trim() !== "") {
+                document.getElementById("chatForm").submit();
+            }
+        }, 2000); // ২ সেকেন্ড সম্পূর্ণ চুপ থাকলে তবেই সাবমিট হবে। প্রয়োজনে এটা বাড়াতে/কমাতে পারো।
+    };
+
+    // কোনো কারণে এরর হলে বা নিজে থেকে বন্ধ হলে বাটন ঠিক করার জন্য
+    recognition.onerror = recognition.onend = function() {
+        // টাইমার সচল থাকলে সাবমিট হবে, নয়তো বাটন নরমাল হবে
+        setTimeout(() => {
+            if (speakBtn.innerHTML === "🎙️ Listening...") {
+                speakBtn.innerHTML = originalText;
+                speakBtn.style.background = "#2563eb";
+            }
+        }, 3000);
+    };
+}
+
+window.onload = function(){
+    let chatArea = document.querySelector(".chat-area");
+    if(chatArea){
+        chatArea.scrollTop = chatArea.scrollHeight;
+    }
+
+    let audio = document.getElementById("voice");
+    if(audio){
+        audio.playbackRate = 1.5;
+    }
+}
+
+document.getElementById("hotlineBtn").onclick = function(){
+    alert("Future AI Hotline\n\nCurrently Under Process");
+}
+
+document.getElementById("futureBtn").onclick = function(){
+    alert(`Future Updates\n\n1. AI Hotline Service\n2. 64 District Coverage\n3. Ambulance Integration\n4. Government Partnership`);
+}
+</script>
+
+{% if audio_file %}
+<audio id="voice" autoplay>
+    <source src="{{ url_for('static', filename=audio_file) }}" type="audio/mpeg">
+</audio>
+{% endif %}
+
+</body>
+</html>
