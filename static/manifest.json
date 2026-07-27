@@ -1,0 +1,23 @@
+{
+  "name": "SasthoBondhu AI",
+  "short_name": "SasthoBondhu",
+  "description": "AI Based Health Assistant",
+  "start_url": "/call",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#111827",
+  "theme_color": "#111827",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/static/logo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/static/logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
