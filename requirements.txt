@@ -4,3 +4,4 @@ gTTS
 SpeechRecognition
 pydub
 gunicorn
+python-dotenv
