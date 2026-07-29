@@ -677,13 +677,10 @@ def voice():
     # ১. আঞ্চলিক শব্দ চেকিং ও রূপান্তর
     for local_word, normal_word in regional_words.items():
         if local_word in user_message:
-            user_message = user_message.replace(
-                local_word,
-                normal_word
-            )
+            user_message = user_message.replace(local_word, normal_word)
             is_noakhali = True
 
-    # 🎯 মূল ফিক্স: কথা বলার যেকোনো ধাপে নোয়াখালী শব্দ পাওয়া গেলেই ডায়ালেক্ট 'noakhali' হয়ে যাবে
+    # 🎯 আঞ্চলিক শব্দ পেলেই ডায়ালেক্ট নোয়াখালী সেট হবে
     if is_noakhali:
         user_data["dialect"] = "noakhali"
 
@@ -696,18 +693,13 @@ def voice():
 
     print("User:", user_message)
     print("Noakhali:", is_noakhali)
-    
+
     # ---------------- FLOW START ----------------
-    if (
-        "হ্যালো" in user_message
-        or
-        "স্বাস্থ্য" in user_message
-    ):
+    if "হ্যালো" in user_message or "স্বাস্থ্য" in user_message:
         user_data["mode"] = "flow"
         user_data["active"] = True
         user_data["step"] = "name"
-        
-        # শুরুতে নোয়াখালী বললে নোয়াখালী, প্রমিত বললে নরমাল সেট হবে
+
         if is_noakhali:
             user_data["dialect"] = "noakhali"
         else:
@@ -715,7 +707,6 @@ def voice():
 
         reply = "প্রিয় গ্রাহক, আপনার নাম বলুন?"
 
-        # যদি শুরুতেই নোয়াখালী বলে থাকে
         if user_data.get("dialect") == "noakhali":
             reply = convert_to_noakhali(reply)
 
@@ -726,21 +717,15 @@ def voice():
         })
     # ---------------- FLOW END ----------------
 
-    if (
-        user_data["active"]
-        and
-        user_data["step"] == "name"
-    ):
+    # ---------------- STEP: NAME ----------------
+    if user_data["active"] and user_data["step"] == "name":
         user_data["name"] = user_message
         user_data["step"] = "problem"
 
         reply = f"""স্বাগতম {user_data["name"]}। আমি স্বাস্থ্যবন্ধু। আপনার স্বাস্থ্য সমস্যাটি বলুন।"""
-        
-        print(user_data)
+
         if user_data.get("dialect") == "noakhali":
-            print("CONVERTING")
             reply = convert_to_noakhali(reply)
-            print(reply)
 
         audio_file = create_audio(reply)
         return jsonify({
@@ -748,54 +733,57 @@ def voice():
             "audio": audio_file
         })
 
-    if (
-        user_data["active"]
-        and
-        user_data["step"] == "problem"
-    ):
-        if "জ্বর" in user_message:
-            user_data["problem"] = "জ্বর"
-            user_data["step"] = "location"
+    # ---------------- STEP: PROBLEM ----------------
+    if user_data["active"] and user_data["step"] == "problem":
+        user_data["problem"] = user_message
+        user_data["step"] = "location"
 
-            reply = f"""{user_data["name"]}, আপনি কোথায় থাকেন?"""
-            
-            if user_data.get("dialect") == "noakhali":
-                reply = convert_to_noakhali(reply)
+        reply = f"""{user_data["name"]}, আপনি কোথায় থাকেন?"""
 
-            audio_file = create_audio(reply)
-            return jsonify({
-                "reply": reply,
-                "audio": audio_file
-            })
+        if user_data.get("dialect") == "noakhali":
+            reply = convert_to_noakhali(reply)
 
-    if (
-        user_data["active"]
-        and
-        user_data["step"] == "location"
-    ):
+        audio_file = create_audio(reply)
+        return jsonify({
+            "reply": reply,
+            "audio": audio_file
+        })
+
+    # ---------------- STEP: LOCATION ----------------
+    if user_data["active"] and user_data["step"] == "location":
         user_data["location"] = user_message
         user_data["step"] = "hospital"
-        location = user_message.lower()
 
-        if "হাতিয়া" in location or "হাতিয়া" in location:
+        # মেসেজ থেকে দাড়ি, কমা ও স্পেস পরিষ্কার করা
+        clean_loc = user_message.lower().strip().replace("।", "").replace(",", "").replace("?", "")
+        print("MATCHING LOCATION =", clean_loc)
+
+        if any(k in clean_loc for k in ["হাতিয়া", "হাতিয়া", "hatiya"]):
             reply = """ভয় পাওয়ার কিছু নেই। আপনার বর্ণনা অনুযায়ী এটি হামের মতো কোনো ভাইরাল সংক্রমণ হতে পারে। আপনাদের ভাষায় এটাকে "আম" বলে। আপনার বাসা থেকে সবচেয়ে কাছে হলো উপজেলা স্বাস্থ্য কমপ্লেক্স। ঐখানে নিচতলায় ১০৩ নম্বর রুমে গিয়ে টিকেট কাটবেন। টিকেটের দাম ১০ টাকা। তারপর ১০৭ নম্বর রুমে গিয়ে ডাক্তার দেখান। ডাক্তার আপনাকে CBC এবং Blood Test দিতে পারে।"""
+
+        elif any(k in clean_loc for k in ["সিদ্ধিরগঞ্জ", "সিদ্ধিরগঞ্জে", "হীরাঝিল", "হিরাঝিল", "siddhirganj"]):
+            reply = """ভয় পাওয়ার কিছু নেই। আপনার বর্ণনা অনুযায়ী এটি হামের মতো কোনো ভাইরাল সংক্রমণ হতে পারে। আপনি যেহেতু সিদ্ধিরগঞ্জে থাকেন, আপনার বাসা থেকে সবচেয়ে কাছে হলো উপজেলা স্বাস্থ্য কমপ্লেক্স। ঐখানে নিচতলায় ১০৩ নম্বর রুমে গিয়ে টিকেট কাটবেন। টিকেটের দাম ১০ টাকা। তারপর ১০৭ নম্বর রুমে গিয়ে ডাক্তার দেখান। ডাক্তার আপনাকে CBC এবং Blood Test দিতে পারে।"""
+
+        elif any(k in clean_loc for k in ["ফতুল্লা", "ফতুল্লায়", "ফতুল্ল", "fatullah", "fatulla"]):
+            reply = """ভয় পাওয়ার কিছু নেই। আপনার বর্ণনা অনুযায়ী এটি হামের মতো কোনো ভাইরাল সংক্রমণ হতে পারে। আপনি যেহেতু ফতুল্লা এলাকায় থাকেন, আপনার বাসা থেকে সবচেয়ে কাছে হলো উপজেলা স্বাস্থ্য কমপ্লেক্স। ঐখানে নিচতলায় ১০৩ নম্বর রুমে গিয়ে টিকেট কাটবেন। টিকেটের দাম ১০ টাকা। তারপর ১০৭ নম্বর রুমে গিয়ে ডাক্তার দেখান। ডাক্তার আপনাকে CBC এবং Blood Test দিতে পারে।"""
+
+        elif any(k in clean_loc for k in ["কাঁচপুর", "কাচপুর", "কাঁচপুরে", "kanchpur"]):
+            reply = """ভয় পাওয়ার কিছু নেই। আপনার বর্ণনা অনুযায়ী এটি হামের মতো কোনো ভাইরাল সংক্রমণ হতে পারে। আপনি যেহেতু কাঁচপুর এলাকায় থাকেন, আপনার বাসা থেকে সবচেয়ে কাছে হলো উপজেলা স্বাস্থ্য কমপ্লেক্স। ঐখানে নিচতলায় ১০৩ নম্বর রুমে গিয়ে টিকেট কাটবেন। টিকেটের দাম ১০ টাকা। তারপর ১০৭ নম্বর রুমে গিয়ে ডাক্তার দেখান। ডাক্তার আপনাকে CBC এবং Blood Test দিতে পারে।"""
+
         else:
             reply = """নিকটবর্তী হাসপাতালে যোগাযোগ করুন। আরও তথ্য দিলে আমি সাহায্য করতে পারি।"""
 
         if user_data.get("dialect") == "noakhali":
             reply = convert_to_noakhali(reply)
-            
+
         audio_file = create_audio(reply)
         return jsonify({
             "reply": reply,
             "audio": audio_file
         })
-    
-    if (
-        user_data["active"]
-        and
-        user_data["step"] == "hospital"
-    ):
+
+    # ---------------- STEP: HOSPITAL ----------------
+    if user_data["active"] and user_data["step"] == "hospital":
         if "টেস্ট" in user_message:
             reply = """CBC টেস্টের জন্য ৩ তলায় সিঁড়ির ডান পাশে ৩০৫ নম্বর রুমে যাবেন। এটার জন্য প্রায় ১০০ টাকা লাগবে। Blood Test এর জন্য ৩ তলার ৫০৫ নম্বর রুমে যাবেন। এটার জন্য প্রায় ১৫০ টাকা লাগবে।"""
             user_data["step"] = "report"
@@ -808,12 +796,9 @@ def voice():
                 "reply": reply,
                 "audio": audio_file
             })
-    
-    if (
-        user_data["active"]
-        and
-        user_data["step"] == "report"
-    ):
+
+    # ---------------- STEP: REPORT ----------------
+    if user_data["active"] and user_data["step"] == "report":
         if "টাকার" in user_message:
             reply = """তুমি ৩ থেকে ৪ ঘন্টা পরে রিপোর্ট পাবে। ২য় তলার ২০২ নম্বর রুম থেকে রিপোর্ট সংগ্রহ করবে। তারপর ২০১ নম্বর রুমে গিয়ে ডাক্তারকে রিপোর্ট দেখাবে। ডাক্তার কী বলেছে আমাকে জানিয়ো।"""
             user_data["step"] = "admission"
@@ -826,12 +811,9 @@ def voice():
                 "reply": reply,
                 "audio": audio_file
             })
-    
-    if (
-        user_data["active"]
-        and
-        user_data["step"] == "admission"
-    ):
+
+    # ---------------- STEP: ADMISSION ----------------
+    if user_data["active"] and user_data["step"] == "admission":
         if "ভর্তি" in user_message:
             reply = """কোনো সমস্যা নেই। ডাক্তার যদি ভর্তি হতে বলে, তাহলে কত টাকা লাগবে, কিভাবে ভর্তি হবে, সব আমি বলে দিবো। টেনেশনের কোনো কারণ নেই। আমি সবসময় তোমার পাশে আছি।"""
 

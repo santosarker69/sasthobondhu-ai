@@ -397,7 +397,7 @@ function startSpeechRecognition() {
 
         const audio = new Audio("/static/" + data.audio);
 
-        audio.playbackRate = 1.35;
+        audio.playbackRate = 1.45;
 
         audio.play();
 
@@ -541,7 +541,7 @@ function startListening(){
 
             let rms = Math.sqrt(sum / buffer.length);
 
-            if(rms < 0.015){
+            if(rms < 0.01){
 
                 if(!silenceStart){
 
@@ -549,7 +549,7 @@ function startListening(){
 
                 }
 
-                if(Date.now() - silenceStart > 1000){
+                if(Date.now() - silenceStart > 1800){
 
                     if(mediaRecorder.state === "recording"){
 
