@@ -1,0 +1,695 @@
+{
+  "জ্বর": {
+    "keywords": [
+      "জ্বর",
+      "গা গরম",
+      "গা জ্বলে",
+      "fever",
+      "feeling feverish",
+      "high temperature"
+    ],
+    "possible_conditions": [
+      "ভাইরাল সংক্রমণ",
+      "সর্দি-জ্বর",
+      "অন্যান্য সংক্রমণ"
+    ],
+    "response": "জ্বর বিভিন্ন ধরনের সংক্রমণ বা অন্য কারণে হতে পারে। পর্যাপ্ত বিশ্রাম নিন ও পানি পান করুন। জ্বর বেশি হলে বা দীর্ঘস্থায়ী হলে চিকিৎসকের পরামর্শ নিন।",
+    "tests": [
+      "CBC"
+    ],
+    "emergency": false,
+    "translations": {
+      "bn": {
+        "response": "জ্বর বিভিন্ন ধরনের সংক্রমণ বা অন্য কারণে হতে পারে। পর্যাপ্ত বিশ্রাম নিন ও পানি পান করুন। জ্বর বেশি হলে বা দীর্ঘস্থায়ী হলে চিকিৎসকের পরামর্শ নিন।",
+        "possible_conditions": [
+          "ভাইরাল সংক্রমণ",
+          "সর্দি-জ্বর",
+          "অন্যান্য সংক্রমণ"
+        ]
+      },
+      "en": {
+        "response": "Fever can occur due to different infections or other causes. Get enough rest and drink plenty of water. If the fever is high or lasts for a long time, consult a doctor.",
+        "possible_conditions": [
+          "Viral infection",
+          "Common cold with fever",
+          "Other infections"
+        ]
+      }
+    }
+  },
+  "কাশি": {
+    "keywords": [
+      "কাশি",
+      "কাশি হচ্ছে",
+      "কাশি আইতাছে",
+      "cough",
+      "coughing",
+      "i have a cough"
+    ],
+    "possible_conditions": [
+      "সর্দি",
+      "অ্যালার্জি",
+      "শ্বাসনালীর সংক্রমণ"
+    ],
+    "response": "কাশি ঠান্ডা, অ্যালার্জি বা সংক্রমণের কারণে হতে পারে। পর্যাপ্ত পানি পান করুন ও বিশ্রাম নিন। দীর্ঘস্থায়ী হলে চিকিৎসকের পরামর্শ নিন।",
+    "tests": [],
+    "emergency": false,
+    "translations": {
+      "bn": {
+        "response": "কাশি ঠান্ডা, অ্যালার্জি বা সংক্রমণের কারণে হতে পারে। পর্যাপ্ত পানি পান করুন ও বিশ্রাম নিন। দীর্ঘস্থায়ী হলে চিকিৎসকের পরামর্শ নিন।",
+        "possible_conditions": [
+          "সর্দি",
+          "অ্যালার্জি",
+          "শ্বাসনালীর সংক্রমণ"
+        ]
+      },
+      "en": {
+        "response": "Coughing can occur due to a cold, allergies, or a respiratory infection. Drink enough water and get adequate rest. Consult a doctor if it persists.",
+        "possible_conditions": [
+          "Common cold",
+          "Allergy",
+          "Respiratory infection"
+        ]
+      }
+    }
+  },
+  "মাথা ব্যথা": {
+    "keywords": [
+      "মাথা ব্যথা",
+      "মাথা ধরছে",
+      "headache",
+      "head hurts",
+      "i have a headache"
+    ],
+    "possible_conditions": [
+      "ক্লান্তি",
+      "ঘুমের অভাব",
+      "পানিশূন্যতা",
+      "অন্যান্য কারণ"
+    ],
+    "response": "মাথা ব্যথা বিভিন্ন কারণে হতে পারে। বিশ্রাম নিন ও পর্যাপ্ত পানি পান করুন। ব্যথা তীব্র হলে বা বারবার হলে চিকিৎসকের পরামর্শ নিন।",
+    "tests": [],
+    "emergency": false,
+    "translations": {
+      "bn": {
+        "response": "মাথা ব্যথা বিভিন্ন কারণে হতে পারে। বিশ্রাম নিন ও পর্যাপ্ত পানি পান করুন। ব্যথা তীব্র হলে বা বারবার হলে চিকিৎসকের পরামর্শ নিন।",
+        "possible_conditions": [
+          "ক্লান্তি",
+          "ঘুমের অভাব",
+          "পানিশূন্যতা",
+          "অন্যান্য কারণ"
+        ]
+      },
+      "en": {
+        "response": "Headache can occur due to various reasons. Rest well and drink enough water. Consult a doctor if the pain is severe or frequent.",
+        "possible_conditions": [
+          "Fatigue",
+          "Lack of sleep",
+          "Dehydration",
+          "Other causes"
+        ]
+      }
+    }
+  },
+  "পেট ব্যথা": {
+    "keywords": [
+      "পেট ব্যথা",
+      "পেটে ব্যথা",
+      "পেট ব্যাদা",
+      "stomach pain",
+      "abdominal pain",
+      "stomach ache"
+    ],
+    "possible_conditions": [
+      "হজমের সমস্যা",
+      "গ্যাস্ট্রিকের সমস্যা",
+      "সংক্রমণ",
+      "অন্যান্য কারণ"
+    ],
+    "response": "পেট ব্যথা বিভিন্ন কারণে হতে পারে। হালকা হলে বিশ্রাম নিন ও পর্যাপ্ত তরল গ্রহণ করুন। ব্যথা তীব্র হলে বা দীর্ঘস্থায়ী হলে চিকিৎসকের পরামর্শ নিন।",
+    "tests": [],
+    "emergency": false,
+    "translations": {
+      "bn": {
+        "response": "পেট ব্যথা বিভিন্ন কারণে হতে পারে। হালকা হলে বিশ্রাম নিন ও পর্যাপ্ত তরল গ্রহণ করুন। ব্যথা তীব্র হলে বা দীর্ঘস্থায়ী হলে চিকিৎসকের পরামর্শ নিন।",
+        "possible_conditions": [
+          "হজমের সমস্যা",
+          "গ্যাস্ট্রিকের সমস্যা",
+          "সংক্রমণ",
+          "অন্যান্য কারণ"
+        ]
+      },
+      "en": {
+        "response": "Abdominal pain can happen for various reasons. If mild, take rest and drink enough fluids. Consult a doctor if the pain is severe or persistent.",
+        "possible_conditions": [
+          "Digestive issues",
+          "Gastric problems",
+          "Infection",
+          "Other causes"
+        ]
+      }
+    }
+  },
+  "বুক ব্যথা": {
+    "keywords": [
+      "বুক ব্যথা",
+      "বুকে ব্যথা",
+      "chest pain",
+      "pain in chest"
+    ],
+    "possible_conditions": [
+      "বিভিন্ন শারীরিক সমস্যা"
+    ],
+    "response": "বুক ব্যথা হলে দ্রুত চিকিৎসকের পরামর্শ নিন।",
+    "tests": [
+      "ECG"
+    ],
+    "emergency": true,
+    "translations": {
+      "bn": {
+        "response": "বুক ব্যথা হলে দ্রুত চিকিৎসকের পরামর্শ নিন।",
+        "possible_conditions": [
+          "বিভিন্ন শারীরিক সমস্যা"
+        ]
+      },
+      "en": {
+        "response": "Seek immediate medical attention if you experience chest pain.",
+        "possible_conditions": [
+          "Various medical conditions"
+        ]
+      }
+    }
+  },
+  "শ্বাসকষ্ট": {
+    "keywords": [
+      "শ্বাসকষ্ট",
+      "শ্বাস নিতে কষ্ট",
+      "শ্বাস নিতে পারছি না",
+      "shortness of breath",
+      "breathing difficulty",
+      "cannot breathe"
+    ],
+    "possible_conditions": [
+      "বিভিন্ন শ্বাসযন্ত্রের সমস্যা"
+    ],
+    "response": "শ্বাসকষ্ট হলে দ্রুত চিকিৎসা নেওয়া প্রয়োজন। শ্বাস নিতে খুব বেশি কষ্ট হলে বা অবস্থা খারাপ হলে জরুরি বিভাগে যান।",
+    "tests": [],
+    "emergency": true,
+    "translations": {
+      "bn": {
+        "response": "শ্বাসকষ্ট হলে দ্রুত চিকিৎসা নেওয়া প্রয়োজন। শ্বাস নিতে খুব বেশি কষ্ট হলে বা অবস্থা খারাপ হলে জরুরি বিভাগে যান।",
+        "possible_conditions": [
+          "বিভিন্ন শ্বাসযন্ত্রের সমস্যা"
+        ]
+      },
+      "en": {
+        "response": "Shortness of breath requires urgent medical care. Go to the emergency room immediately if breathing becomes extremely difficult or worsens.",
+        "possible_conditions": [
+          "Various respiratory issues"
+        ]
+      }
+    }
+  },
+  "ডায়রিয়া": {
+    "keywords": [
+      "ডায়রিয়া",
+      "পাতলা পায়খানা",
+      "পায়খানা হচ্ছে",
+      "diarrhea",
+      "loose motion",
+      "watery stool"
+    ],
+    "possible_conditions": [
+      "সংক্রমণ",
+      "খাদ্যজনিত সমস্যা",
+      "অন্যান্য কারণ"
+    ],
+    "response": "ডায়রিয়ায় পানিশূন্যতা হতে পারে। পর্যাপ্ত তরল ও ORS গ্রহণ করুন। অবস্থা গুরুতর হলে বা পানিশূন্যতার লক্ষণ দেখা দিলে চিকিৎসকের পরামর্শ নিন।",
+    "tests": [],
+    "emergency": false,
+    "translations": {
+      "bn": {
+        "response": "ডায়রিয়ায় পানিশূন্যতা হতে পারে। পর্যাপ্ত তরল ও ORS গ্রহণ করুন। অবস্থা গুরুতর হলে বা পানিশূন্যতার লক্ষণ দেখা দিলে চিকিৎসকের পরামর্শ নিন।",
+        "possible_conditions": [
+          "সংক্রমণ",
+          "খাদ্যজনিত সমস্যা",
+          "অন্যান্য কারণ"
+        ]
+      },
+      "en": {
+        "response": "Diarrhea can lead to dehydration. Drink adequate fluids and ORS. Consult a doctor if the condition becomes severe or signs of dehydration appear.",
+        "possible_conditions": [
+          "Infection",
+          "Food-related issues",
+          "Other causes"
+        ]
+      }
+    }
+  },
+  "বমি": {
+    "keywords": [
+      "বমি",
+      "বমি হচ্ছে",
+      "vomiting",
+      "throwing up",
+      "nausea and vomiting"
+    ],
+    "possible_conditions": [
+      "পেটের সমস্যা",
+      "সংক্রমণ",
+      "খাদ্যজনিত সমস্যা",
+      "অন্যান্য সমস্যা"
+    ],
+    "response": "বমি হলে পানিশূন্যতা এড়াতে অল্প অল্প করে তরল পান করুন। বারবার বমি হলে বা পানি রাখতে না পারলে চিকিৎসকের পরামর্শ নিন।",
+    "tests": [],
+    "emergency": false,
+    "translations": {
+      "bn": {
+        "response": "বমি হলে পানিশূন্যতা এড়াতে অল্প অল্প করে তরল পান করুন। বারবার বমি হলে বা পানি রাখতে না পারলে চিকিৎসকের পরামর্শ নিন।",
+        "possible_conditions": [
+          "পেটের সমস্যা",
+          "সংক্রমণ",
+          "খাদ্যজনিত সমস্যা",
+          "অন্যান্য সমস্যা"
+        ]
+      },
+      "en": {
+        "response": "Drink small amounts of fluids frequently to prevent dehydration when vomiting. Consult a doctor if vomiting is persistent or if you cannot retain fluids.",
+        "possible_conditions": [
+          "Stomach issues",
+          "Infection",
+          "Food-related issues",
+          "Other problems"
+        ]
+      }
+    }
+  },
+  "সাপে_কামড়": {
+    "keywords": [
+      "সাপে কামড়",
+      "সাপে কেটেছে",
+      "সাপে কাটছে",
+      "সাপ কামড়েছে",
+      "সাপের কামড়",
+      "snake bite",
+      "bitten by a snake"
+    ],
+    "possible_conditions": [],
+    "response": "সাপে কামড়ালে কোনো ওঝা, ঝাড়ফুঁক বা গ্রাম্য চিকিৎসার ওপর নির্ভর করবেন না। আক্রান্ত ব্যক্তিকে যত দ্রুত সম্ভব হাসপাতালে নিয়ে যান। আক্রান্ত অঙ্গটি যতটা সম্ভব স্থির রাখুন।",
+    "tests": [],
+    "emergency": true,
+    "translations": {
+      "bn": {
+        "response": "সাপে কামড়ালে কোনো ওঝা, ঝাড়ফুঁক বা গ্রাম্য চিকিৎসার ওপর নির্ভর করবেন না। আক্রান্ত ব্যক্তিকে যত দ্রুত সম্ভব হাসপাতালে নিয়ে যান। আক্রান্ত অঙ্গটি যতটা সম্ভব স্থির রাখুন।",
+        "possible_conditions": []
+      },
+      "en": {
+        "response": "Do not rely on traditional healers or exorcism if bitten by a snake. Take the affected person to a hospital as quickly as possible. Keep the bitten limb as still as possible.",
+        "possible_conditions": []
+      }
+    }
+  },
+  "হাম": {
+    "keywords": [
+      "হাম",
+      "হামের লক্ষণ",
+      "measles",
+      "measles rash"
+    ],
+    "possible_conditions": [
+      "হামের মতো ভাইরাল সংক্রমণ"
+    ],
+    "response": "ভয় পাওয়ার কিছু নেই। আপনার বর্ণনা অনুযায়ী এটি হামের মতো কোনো ভাইরাল সংক্রমণ হতে পারে।",
+    "tests": [
+      "CBC",
+      "Blood"
+    ],
+    "emergency": true,
+    "translations": {
+      "bn": {
+        "response": "ভয় পাওয়ার কিছু নেই। আপনার বর্ণনা অনুযায়ী এটি হামের মতো কোনো ভাইরাল সংক্রমণ হতে পারে।",
+        "possible_conditions": [
+          "হামের মতো ভাইরাল সংক্রমণ"
+        ]
+      },
+      "en": {
+        "response": "There is no need to panic. Based on your description, this could be a viral infection like measles.",
+        "possible_conditions": [
+          "Measles-like viral infection"
+        ]
+      }
+    }
+  },
+  "ডেঙ্গু": {
+    "keywords": [
+      "ডেঙ্গু",
+      "ডেঙ্গু জ্বর",
+      "চোখের পেছনে ব্যথা",
+      "dengue",
+      "dengue fever",
+      "high fever with rash"
+    ],
+    "possible_conditions": [
+      "ডেঙ্গু ভাইরাস সংক্রমণ"
+    ],
+    "response": "তীব্র জ্বর, শরীর ব্যথা ও চোখের পেছনে ব্যথা ডেঙ্গুর লক্ষণ হতে পারে। পর্যাপ্ত তরল পান করুন ও চিকিৎসকের পরামর্শে রক্ত পরীক্ষা করান। লাল দাগ বা রক্তপাত দেখা দিলে দ্রুত জরুরি চিকিৎসা নিন।",
+    "tests": [
+      "NS1 Antigen",
+      "CBC"
+    ],
+    "emergency": true,
+    "translations": {
+      "bn": {
+        "response": "তীব্র জ্বর, শরীর ব্যথা ও চোখের পেছনে ব্যথা ডেঙ্গুর লক্ষণ হতে পারে। পর্যাপ্ত তরল পান করুন ও চিকিৎসকের পরামর্শে রক্ত পরীক্ষা করান। লাল দাগ বা রক্তপাত দেখা দিলে দ্রুত জরুরি চিকিৎসা নিন।",
+        "possible_conditions": [
+          "ডেঙ্গু ভাইরাস সংক্রমণ"
+        ]
+      },
+      "en": {
+        "response": "High fever, body aches, and pain behind the eyes can be symptoms of dengue. Stay hydrated and consult a doctor for blood tests. Seek emergency medical care if red spots or bleeding occur.",
+        "possible_conditions": [
+          "Dengue virus infection"
+        ]
+      }
+    }
+  },
+  "স্ট্রোক": {
+    "keywords": [
+      "স্ট্রোক",
+      "মুখ বেকে যাওয়া",
+      "একপাশ অবশ",
+      "কথা জড়িয়ে যাওয়া",
+      "stroke",
+      "face drooping",
+      "arm weakness",
+      "slurred speech"
+    ],
+    "possible_conditions": [
+      "মস্তিষ্কে রক্ত সঞ্চালনে বাধা বা রক্তপাত"
+    ],
+    "response": "এটি অত্যন্ত জরুরি স্বাস্থ্যগত সমস্যা। আক্রান্ত ব্যক্তিকে অবিলম্বে নিকটস্থ হাসপাতালের জরুরি বিভাগে নিয়ে যান। এক মুহূর্তও দেরি করবেন না।",
+    "tests": [
+      "CT Scan",
+      "MRI"
+    ],
+    "emergency": true,
+    "translations": {
+      "bn": {
+        "response": "এটি অত্যন্ত জরুরি স্বাস্থ্যগত সমস্যা। আক্রান্ত ব্যক্তিকে অবিলম্বে নিকটস্থ হাসপাতালের জরুরি বিভাগে নিয়ে যান। এক মুহূর্তও দেরি করবেন না।",
+        "possible_conditions": [
+          "মস্তিষ্কে রক্ত সঞ্চালনে বাধা বা রক্তপাত"
+        ]
+      },
+      "en": {
+        "response": "This is a critical medical emergency. Take the person to the nearest emergency room immediately. Do not delay.",
+        "possible_conditions": [
+          "Cerebrovascular accident or brain hemorrhage"
+        ]
+      }
+    }
+  },
+  "অ্যালার্জি": {
+    "keywords": [
+      "অ্যালার্জি",
+      "চুলকানি",
+      "গায়ে চাকা চাকা",
+      "allergy",
+      "itching",
+      "skin hives",
+      "rashes"
+    ],
+    "possible_conditions": [
+      "খাদ্য বা পরিবেশগত অ্যালার্জি",
+      "ত্বকের সংবেদনশীলতা"
+    ],
+    "response": "অ্যালার্জিজনিত কারণে ত্বক লাল হতে বা চুলকাতে পারে। যে কারণে সমস্যা হচ্ছে তা এড়িয়ে চলুন। শ্বাসকষ্ট বা মুখ ফুলে গেলে দ্রুত চিকিৎসকের পরামর্শ নিন।",
+    "tests": [],
+    "emergency": false,
+    "translations": {
+      "bn": {
+        "response": "অ্যালার্জিজনিত কারণে ত্বক লাল হতে বা চুলকাতে পারে। যে কারণে সমস্যা হচ্ছে তা এড়িয়ে চলুন। শ্বাসকষ্ট বা মুখ ফুলে গেলে দ্রুত চিকিৎসকের পরামর্শ নিন।",
+        "possible_conditions": [
+          "খাদ্য বা পরিবেশগত অ্যালার্জি",
+          "ত্বকের সংবেদনশীলতা"
+        ]
+      },
+      "en": {
+        "response": "Allergies can cause redness or itching of the skin. Avoid the potential triggers. Seek urgent medical care if you experience facial swelling or breathing difficulty.",
+        "possible_conditions": [
+          "Food or environmental allergy",
+          "Skin sensitivity"
+        ]
+      }
+    }
+  },
+  "পিঠ ব্যথা": {
+    "keywords": [
+      "পিঠ ব্যথা",
+      "কোমর ব্যথা",
+      "পিঠে ব্যথা",
+      "back pain",
+      "lower back pain",
+      "back ache"
+    ],
+    "possible_conditions": [
+      "পেশির টান",
+      "ভুল পজিশনে বসা",
+      "মেরুদণ্ডের সমস্যা"
+    ],
+    "response": "পিঠ বা কোমর ব্যথা পেশির টানের কারণে হতে পারে। ভারী জিনিস তোলা থেকে বিরত থাকুন ও সঠিক ভঙ্গিতে বসুন। ব্যথা দীর্ঘস্থায়ী হলে বা পায়ে ছড়িয়ে পড়লে চিকিৎসকের পরামর্শ নিন।",
+    "tests": [
+      "X-Ray"
+    ],
+    "emergency": false,
+    "translations": {
+      "bn": {
+        "response": "পিঠ বা কোমর ব্যথা পেশির টানের কারণে হতে পারে। ভারী জিনিস তোলা থেকে বিরত থাকুন ও সঠিক ভঙ্গিতে বসুন। ব্যথা দীর্ঘস্থায়ী হলে বা পায়ে ছড়িয়ে পড়লে চিকিৎসকের পরামর্শ নিন।",
+        "possible_conditions": [
+          "পেশির টান",
+          "ভুল পজিশনে বসা",
+          "মেরুদণ্ডের সমস্যা"
+        ]
+      },
+      "en": {
+        "response": "Back pain is often caused by muscle strain or posture issues. Avoid lifting heavy objects and maintain good posture. Consult a doctor if the pain persists or radiates to the legs.",
+        "possible_conditions": [
+          "Muscle strain",
+          "Poor posture",
+          "Spinal issues"
+        ]
+      }
+    }
+  },
+  "গলা ব্যথা": {
+    "keywords": [
+      "গলা ব্যথা",
+      "গলা খুসখুস",
+      "ঢোক গিলতে কষ্ট",
+      "sore throat",
+      "throat pain",
+      "difficulty swallowing"
+    ],
+    "possible_conditions": [
+      "টনসিলাইটিস",
+      "ভাইরাল সংক্রমণ",
+      "ঠান্ডা লাগা"
+    ],
+    "response": "গলা ব্যথা সাধারণত সর্দি বা সংক্রমণের কারণে হয়। হালকা গরম পানিতে লবণ দিয়ে কুলকুচা করুন এবং কুসুম গরম পানি পান করুন। তীব্র জ্বর বা গিলতে অতিরিক্ত কষ্ট হলে চিকিৎসকের পরামর্শ নিন।",
+    "tests": [],
+    "emergency": false,
+    "translations": {
+      "bn": {
+        "response": "গলা ব্যথা সাধারণত সর্দি বা সংক্রমণের কারণে হয়। হালকা গরম পানিতে লবণ দিয়ে কুলকুচা করুন এবং কুসুম গরম পানি পান করুন। তীব্র জ্বর বা গিলতে অতিরিক্ত কষ্ট হলে চিকিৎসকের পরামর্শ নিন।",
+        "possible_conditions": [
+          "টনসিলাইটিস",
+          "ভাইরাল সংক্রমণ",
+          "ঠান্ডা লাগা"
+        ]
+      },
+      "en": {
+        "response": "Sore throat is usually caused by a cold or infection. Gargle with warm salt water and stay hydrated with warm fluids. Consult a doctor if you have high fever or severe difficulty swallowing.",
+        "possible_conditions": [
+          "Tonsillitis",
+          "Viral infection",
+          "Common cold"
+        ]
+      }
+    }
+  },
+  "অতিরিক্ত_রক্তপাত": {
+    "keywords": [
+      "অতিরিক্ত রক্তপাত",
+      "রক্ত পড়ছে",
+      "রক্ত বন্ধ হচ্ছে না",
+      "heavy bleeding",
+      "severe bleeding",
+      "uncontrolled bleeding"
+    ],
+    "possible_conditions": [
+      "গভীর ক্ষত",
+      "আঘাত বা দুর্ঘটনা"
+    ],
+    "response": "ক্ষতস্থানে পরিষ্কার কাপড় বা গজ দিয়ে শক্ত করে চেপে ধরুন যাতে রক্তপাত কমে। অবিলম্বে রোগীকে নিকটস্থ হাসপাতালের জরুরি বিভাগে নিয়ে যান।",
+    "tests": [],
+    "emergency": true,
+    "translations": {
+      "bn": {
+        "response": "ক্ষতস্থানে পরিষ্কার কাপড় বা গজ দিয়ে শক্ত করে চেপে ধরুন যাতে রক্তপাত কমে। অবিলম্বে রোগীকে নিকটস্থ হাসপাতালের জরুরি বিভাগে নিয়ে যান।",
+        "possible_conditions": [
+          "গভীর ক্ষত",
+          "আঘাত বা দুর্ঘটনা"
+        ]
+      },
+      "en": {
+        "response": "Apply firm direct pressure on the wound with a clean cloth or gauze to control bleeding. Take the patient to the nearest emergency room immediately.",
+        "possible_conditions": [
+          "Deep wound",
+          "Trauma or accident"
+        ]
+      }
+    }
+  },
+  "কোষ্ঠকাঠিন্য": {
+    "keywords": [
+      "কোষ্ঠকাঠিন্য",
+      "পায়খানা কষা",
+      "পায়খানা হচ্ছে না",
+      "constipation",
+      "hard stool",
+      "difficulty passing stool"
+    ],
+    "possible_conditions": [
+      "আঁশযুক্ত খাবারের অভাব",
+      "কম পানি পান করা",
+      "হজমের সমস্যা"
+    ],
+    "response": "কোষ্ঠকাঠিন্য দূর করতে প্রচুর পানি পান করুন এবং শাকসবজি ও আঁশযুক্ত খাবার খান। নিয়মিত হালকা ব্যায়াম করুন। সমস্যা দীর্ঘস্থায়ী হলে চিকিৎসকের পরামর্শ নিন।",
+    "tests": [],
+    "emergency": false,
+    "translations": {
+      "bn": {
+        "response": "কোষ্ঠকাঠিন্য দূর করতে প্রচুর পানি পান করুন এবং শাকসবজি ও আঁশযুক্ত খাবার খান। নিয়মিত হালকা ব্যায়াম করুন। সমস্যা দীর্ঘস্থায়ী হলে চিকিৎসকের পরামর্শ নিন।",
+        "possible_conditions": [
+          "আঁশযুক্ত খাবারের অভাব",
+          "কম পানি পান করা",
+          "হজমের সমস্যা"
+        ]
+      },
+      "en": {
+        "response": "Drink plenty of water and eat high-fiber foods such as vegetables to relieve constipation. Stay physically active. Consult a doctor if the issue is long-lasting.",
+        "possible_conditions": [
+          "Lack of dietary fiber",
+          "Low water intake",
+          "Digestive issues"
+        ]
+      }
+    }
+  },
+  "চোখ_ওঠা": {
+    "keywords": [
+      "চোখ ওঠা",
+      "চোখ লাল",
+      "চোখ দিয়ে পানি পড়া",
+      "চোখ চুলকানো",
+      "conjunctivitis",
+      "pink eye",
+      "red eyes"
+    ],
+    "possible_conditions": [
+      "চোখের সংক্রমণ",
+      "অ্যালার্জি"
+    ],
+    "response": "চোখ ওঠা একটি ছোঁয়াচে সমস্যা হতে পারে। চোখ নোংরা হাত দিয়ে স্পর্শ করবেন না, পরিষ্কার পানি দিয়ে ধুয়ে নিন এবং পৃথক তোয়ালে ব্যবহার করুন। দৃষ্টিশক্তি ঝাপসা হলে চিকিৎসকের পরামর্শ নিন।",
+    "tests": [],
+    "emergency": false,
+    "translations": {
+      "bn": {
+        "response": "চোখ ওঠা একটি ছোঁয়াচে সমস্যা হতে পারে। চোখ নোংরা হাত দিয়ে স্পর্শ করবেন না, পরিষ্কার পানি দিয়ে ধুয়ে নিন এবং পৃথক তোয়ালে ব্যবহার করুন। দৃষ্টিশক্তি ঝাপসা হলে চিকিৎসকের পরামর্শ নিন।",
+        "possible_conditions": [
+          "চোখের সংক্রমণ",
+          "অ্যালার্জি"
+        ]
+      },
+      "en": {
+        "response": "Pink eye can be contagious. Avoid touching your eyes with unwashed hands, rinse with clean water, and use a separate towel. Consult an eye doctor if vision becomes blurry.",
+        "possible_conditions": [
+          "Eye infection",
+          "Allergy"
+        ]
+      }
+    }
+  },
+  "অজ্ঞান_হওয়া": {
+    "keywords": [
+      "অজ্ঞান হওয়া",
+      "বেহুঁশ হওয়া",
+      "জ্ঞান হারানো",
+      "fainting",
+      "fainted",
+      "loss of consciousness",
+      "passed out"
+    ],
+    "possible_conditions": [
+      "রক্তচাপ কমে যাওয়া",
+      "মস্তিষ্কে অক্সিজেনের অভাব",
+      "জরুরি শারীরিক সমস্যা"
+    ],
+    "response": "রোগীকে সমতল স্থানে শুইয়ে দিন এবং পা সামান্য উঁচুতে রাখুন। দ্রুত জ্ঞান না ফিরলে অবিলম্বে হাসপাতালে নিয়ে যান।",
+    "tests": [],
+    "emergency": true,
+    "translations": {
+      "bn": {
+        "response": "রোগীকে সমতল স্থানে শুইয়ে দিন এবং পা সামান্য উঁচুতে রাখুন। দ্রুত জ্ঞান না ফিরলে অবিলম্বে হাসপাতালে নিয়ে যান।",
+        "possible_conditions": [
+          "রক্তচাপ কমে যাওয়া",
+          "মস্তিষ্কে অক্সিজেনের অভাব",
+          "জরুরি শারীরিক সমস্যা"
+        ]
+      },
+      "en": {
+        "response": "Lay the person flat on their back and elevate their feet slightly. If they do not regain consciousness quickly, seek emergency medical help immediately.",
+        "possible_conditions": [
+          "Low blood pressure",
+          "Lack of oxygen to the brain",
+          "Underlying medical emergency"
+        ]
+      }
+    }
+  },
+  "প্রস্রাবে_জ্বালাপোড়া": {
+    "keywords": [
+      "প্রস্রাবে জ্বালাপোড়া",
+      "প্রস্রাবে ব্যথা",
+      "বারবার প্রস্রাব",
+      "burning urination",
+      "painful urination",
+      "UTI symptoms"
+    ],
+    "possible_conditions": [
+      "ইউরিনারি ট্র্যাক্ট ইনফেকশন (UTI)",
+      "পানিশূন্যতা"
+    ],
+    "response": "প্রস্রাবে জ্বালাপোড়া সাধারণত মূত্রনালীর সংক্রমণের (UTI) কারণে হয়। প্রচুর পানি পান করুন। লক্ষণগুলো অব্যাহত থাকলে বা সাথে জ্বর থাকলে চিকিৎসকের পরামর্শ নিন।",
+    "tests": [
+      "Urine R/E",
+      "Urine Culture"
+    ],
+    "emergency": false,
+    "translations": {
+      "bn": {
+        "response": "প্রস্রাবে জ্বালাপোড়া সাধারণত মূত্রনালীর সংক্রমণের (UTI) কারণে হয়। প্রচুর পানি পান করুন। লক্ষণগুলো অব্যাহত থাকলে বা সাথে জ্বর থাকলে চিকিৎসকের পরামর্শ নিন।",
+        "possible_conditions": [
+          "ইউরিনারি ট্র্যাক্ট ইনফেকশন (UTI)",
+          "পানিশূন্যতা"
+        ]
+      },
+      "en": {
+        "response": "Burning sensation during urination is commonly caused by a Urinary Tract Infection (UTI). Drink plenty of water. Consult a doctor if symptoms persist or if accompanied by fever.",
+        "possible_conditions": [
+          "Urinary Tract Infection (UTI)",
+          "Dehydration"
+        ]
+      }
+    }
+  }
+}

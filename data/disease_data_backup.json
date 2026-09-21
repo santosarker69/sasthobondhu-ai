@@ -1,0 +1,343 @@
+{
+  "জ্বর": {
+    "keywords": [
+      "জ্বর",
+      "গা গরম",
+      "গা জ্বলে",
+      "fever",
+      "feeling feverish",
+      "high temperature"
+    ],
+    "possible_conditions": [
+      "ভাইরাল সংক্রমণ",
+      "সর্দি-জ্বর",
+      "অন্যান্য সংক্রমণ"
+    ],
+    "response": "জ্বর বিভিন্ন ধরনের সংক্রমণ বা অন্য কারণে হতে পারে। পর্যাপ্ত বিশ্রাম নিন ও পানি পান করুন। জ্বর বেশি হলে বা দীর্ঘস্থায়ী হলে চিকিৎসকের পরামর্শ নিন।",
+    "tests": [
+      "CBC"
+    ],
+    "emergency": false,
+    "translations": {
+      "bn": {
+        "response": "জ্বর বিভিন্ন ধরনের সংক্রমণ বা অন্য কারণে হতে পারে। পর্যাপ্ত বিশ্রাম নিন ও পানি পান করুন। জ্বর বেশি হলে বা দীর্ঘস্থায়ী হলে চিকিৎসকের পরামর্শ নিন।",
+        "possible_conditions": [
+          "ভাইরাল সংক্রমণ",
+          "সর্দি-জ্বর",
+          "অন্যান্য সংক্রমণ"
+        ]
+      },
+      "en": {
+        "response": "Fever can occur due to different infections or other causes. Get enough rest and drink plenty of water. If the fever is high or lasts for a long time, consult a doctor.",
+        "possible_conditions": [
+          "Viral infection",
+          "Common cold with fever",
+          "Other infections"
+        ]
+      }
+    }
+  },
+  "কাশি": {
+    "keywords": [
+      "কাশি",
+      "কাশি হচ্ছে",
+      "কাশি আইতাছে",
+      "cough",
+      "coughing",
+      "i have a cough"
+    ],
+    "possible_conditions": [
+      "সর্দি",
+      "অ্যালার্জি",
+      "শ্বাসনালীর সংক্রমণ"
+    ],
+    "response": "কাশি ঠান্ডা, অ্যালার্জি বা সংক্রমণের কারণে হতে পারে। পর্যাপ্ত পানি পান করুন ও বিশ্রাম নিন। দীর্ঘস্থায়ী হলে চিকিৎসকের পরামর্শ নিন।",
+    "tests": [],
+    "emergency": false,
+    "translations": {
+      "bn": {
+        "response": "কাশি ঠান্ডা, অ্যালার্জি বা সংক্রমণের কারণে হতে পারে। পর্যাপ্ত পানি পান করুন ও বিশ্রাম নিন। দীর্ঘস্থায়ী হলে চিকিৎসকের পরামর্শ নিন।",
+        "possible_conditions": [
+          "সর্দি",
+          "অ্যালার্জি",
+          "শ্বাসনালীর সংক্রমণ"
+        ]
+      },
+      "en": {
+        "response": "Coughing can occur due to a cold, allergies, or a respiratory infection. Drink enough water and get adequate rest. Consult a doctor if it persists.",
+        "possible_conditions": [
+          "Common cold",
+          "Allergy",
+          "Respiratory infection"
+        ]
+      }
+    }
+  },
+  "মাথা ব্যথা": {
+    "keywords": [
+      "মাথা ব্যথা",
+      "মাথা ধরছে",
+      "headache",
+      "head hurts",
+      "i have a headache"
+    ],
+    "possible_conditions": [
+      "ক্লান্তি",
+      "ঘুমের অভাব",
+      "পানিশূন্যতা",
+      "অন্যান্য কারণ"
+    ],
+    "response": "মাথা ব্যথা বিভিন্ন কারণে হতে পারে। বিশ্রাম নিন ও পর্যাপ্ত পানি পান করুন। ব্যথা তীব্র হলে বা বারবার হলে চিকিৎসকের পরামর্শ নিন।",
+    "tests": [],
+    "emergency": false,
+    "translations": {
+      "bn": {
+        "response": "মাথা ব্যথা বিভিন্ন কারণে হতে পারে। বিশ্রাম নিন ও পর্যাপ্ত পানি পান করুন। ব্যথা তীব্র হলে বা বারবার হলে চিকিৎসকের পরামর্শ নিন।",
+        "possible_conditions": [
+          "ক্লান্তি",
+          "ঘুমের অভাব",
+          "পানিশূন্যতা",
+          "অন্যান্য কারণ"
+        ]
+      },
+      "en": {
+        "response": "Headache can occur due to various reasons. Rest well and drink enough water. Consult a doctor if the pain is severe or frequent.",
+        "possible_conditions": [
+          "Fatigue",
+          "Lack of sleep",
+          "Dehydration",
+          "Other causes"
+        ]
+      }
+    }
+  },
+  "পেট ব্যথা": {
+    "keywords": [
+      "পেট ব্যথা",
+      "পেটে ব্যথা",
+      "পেট ব্যাদা",
+      "stomach pain",
+      "abdominal pain",
+      "stomach ache"
+    ],
+    "possible_conditions": [
+      "হজমের সমস্যা",
+      "গ্যাস্ট্রিকের সমস্যা",
+      "সংক্রমণ",
+      "অন্যান্য কারণ"
+    ],
+    "response": "পেট ব্যথা বিভিন্ন কারণে হতে পারে। হালকা হলে বিশ্রাম নিন ও পর্যাপ্ত তরল গ্রহণ করুন। ব্যথা তীব্র হলে বা দীর্ঘস্থায়ী হলে চিকিৎসকের পরামর্শ নিন।",
+    "tests": [],
+    "emergency": false,
+    "translations": {
+      "bn": {
+        "response": "পেট ব্যথা বিভিন্ন কারণে হতে পারে। হালকা হলে বিশ্রাম নিন ও পর্যাপ্ত তরল গ্রহণ করুন। ব্যথা তীব্র হলে বা দীর্ঘস্থায়ী হলে চিকিৎসকের পরামর্শ নিন।",
+        "possible_conditions": [
+          "হজমের সমস্যা",
+          "গ্যাস্ট্রিকের সমস্যা",
+          "সংক্রমণ",
+          "অন্যান্য কারণ"
+        ]
+      },
+      "en": {
+        "response": "Abdominal pain can happen for various reasons. If mild, take rest and drink enough fluids. Consult a doctor if the pain is severe or persistent.",
+        "possible_conditions": [
+          "Digestive issues",
+          "Gastric problems",
+          "Infection",
+          "Other causes"
+        ]
+      }
+    }
+  },
+  "বুক ব্যথা": {
+    "keywords": [
+      "বুক ব্যথা",
+      "বুকে ব্যথা",
+      "chest pain",
+      "pain in chest"
+    ],
+    "possible_conditions": [
+      "বিভিন্ন শারীরিক সমস্যা"
+    ],
+    "response": "বুক ব্যথা হলে দ্রুত চিকিৎসকের পরামর্শ নিন।",
+    "tests": [
+      "ECG"
+    ],
+    "emergency": true,
+    "translations": {
+      "bn": {
+        "response": "বুক ব্যথা হলে দ্রুত চিকিৎসকের পরামর্শ নিন।",
+        "possible_conditions": [
+          "বিভিন্ন শারীরিক সমস্যা"
+        ]
+      },
+      "en": {
+        "response": "Seek immediate medical attention if you experience chest pain.",
+        "possible_conditions": [
+          "Various medical conditions"
+        ]
+      }
+    }
+  },
+  "শ্বাসকষ্ট": {
+    "keywords": [
+      "শ্বাসকষ্ট",
+      "শ্বাস নিতে কষ্ট",
+      "শ্বাস নিতে পারছি না",
+      "shortness of breath",
+      "breathing difficulty",
+      "cannot breathe"
+    ],
+    "possible_conditions": [
+      "বিভিন্ন শ্বাসযন্ত্রের সমস্যা"
+    ],
+    "response": "শ্বাসকষ্ট হলে দ্রুত চিকিৎসা নেওয়া প্রয়োজন। শ্বাস নিতে খুব বেশি কষ্ট হলে বা অবস্থা খারাপ হলে জরুরি বিভাগে যান।",
+    "tests": [],
+    "emergency": true,
+    "translations": {
+      "bn": {
+        "response": "শ্বাসকষ্ট হলে দ্রুত চিকিৎসা নেওয়া প্রয়োজন। শ্বাস নিতে খুব বেশি কষ্ট হলে বা অবস্থা খারাপ হলে জরুরি বিভাগে যান।",
+        "possible_conditions": [
+          "বিভিন্ন শ্বাসযন্ত্রের সমস্যা"
+        ]
+      },
+      "en": {
+        "response": "Shortness of breath requires urgent medical care. Go to the emergency room immediately if breathing becomes extremely difficult or worsens.",
+        "possible_conditions": [
+          "Various respiratory issues"
+        ]
+      }
+    }
+  },
+  "ডায়রিয়া": {
+    "keywords": [
+      "ডায়রিয়া",
+      "পাতলা পায়খানা",
+      "পায়খানা হচ্ছে",
+      "diarrhea",
+      "loose motion",
+      "watery stool"
+    ],
+    "possible_conditions": [
+      "সংক্রমণ",
+      "খাদ্যজনিত সমস্যা",
+      "অন্যান্য কারণ"
+    ],
+    "response": "ডায়রিয়ায় পানিশূন্যতা হতে পারে। পর্যাপ্ত তরল ও ORS গ্রহণ করুন। অবস্থা গুরুতর হলে বা পানিশূন্যতার লক্ষণ দেখা দিলে চিকিৎসকের পরামর্শ নিন।",
+    "tests": [],
+    "emergency": false,
+    "translations": {
+      "bn": {
+        "response": "ডায়রিয়ায় পানিশূন্যতা হতে পারে। পর্যাপ্ত তরল ও ORS গ্রহণ করুন। অবস্থা গুরুতর হলে বা পানিশূন্যতার লক্ষণ দেখা দিলে চিকিৎসকের পরামর্শ নিন।",
+        "possible_conditions": [
+          "সংক্রমণ",
+          "খাদ্যজনিত সমস্যা",
+          "অন্যান্য কারণ"
+        ]
+      },
+      "en": {
+        "response": "Diarrhea can lead to dehydration. Drink adequate fluids and ORS. Consult a doctor if the condition becomes severe or signs of dehydration appear.",
+        "possible_conditions": [
+          "Infection",
+          "Food-related issues",
+          "Other causes"
+        ]
+      }
+    }
+  },
+  "বমি": {
+    "keywords": [
+      "বমি",
+      "বমি হচ্ছে",
+      "vomiting",
+      "throwing up",
+      "nausea and vomiting"
+    ],
+    "possible_conditions": [
+      "পেটের সমস্যা",
+      "সংক্রমণ",
+      "খাদ্যজনিত সমস্যা",
+      "অন্যান্য সমস্যা"
+    ],
+    "response": "বমি হলে পানিশূন্যতা এড়াতে অল্প অল্প করে তরল পান করুন। বারবার বমি হলে বা পানি রাখতে না পারলে চিকিৎসকের পরামর্শ নিন।",
+    "tests": [],
+    "emergency": false,
+    "translations": {
+      "bn": {
+        "response": "বমি হলে পানিশূন্যতা এড়াতে অল্প অল্প করে তরল পান করুন। বারবার বমি হলে বা পানি রাখতে না পারলে চিকিৎসকের পরামর্শ নিন।",
+        "possible_conditions": [
+          "পেটের সমস্যা",
+          "সংক্রমণ",
+          "খাদ্যজনিত সমস্যা",
+          "অন্যান্য সমস্যা"
+        ]
+      },
+      "en": {
+        "response": "Drink small amounts of fluids frequently to prevent dehydration when vomiting. Consult a doctor if vomiting is persistent or if you cannot retain fluids.",
+        "possible_conditions": [
+          "Stomach issues",
+          "Infection",
+          "Food-related issues",
+          "Other problems"
+        ]
+      }
+    }
+  },
+  "সাপে_কামড়": {
+    "keywords": [
+      "সাপে কামড়",
+      "সাপে কেটেছে",
+      "সাপে কাটছে",
+      "সাপ কামড়েছে",
+      "সাপের কামড়",
+      "snake bite",
+      "bitten by a snake"
+    ],
+    "possible_conditions": [],
+    "response": "সাপে কামড়ালে কোনো ওঝা, ঝাড়ফুঁক বা গ্রাম্য চিকিৎসার ওপর নির্ভর করবেন না। আক্রান্ত ব্যক্তিকে যত দ্রুত সম্ভব হাসপাতালে নিয়ে যান। আক্রান্ত অঙ্গটি যতটা সম্ভব স্থির রাখুন।",
+    "tests": [],
+    "emergency": true,
+    "translations": {
+      "bn": {
+        "response": "সাপে কামড়ালে কোনো ওঝা, ঝাড়ফুঁক বা গ্রাম্য চিকিৎসার ওপর নির্ভর করবেন না। আক্রান্ত ব্যক্তিকে যত দ্রুত সম্ভব হাসপাতালে নিয়ে যান। আক্রান্ত অঙ্গটি যতটা সম্ভব স্থির রাখুন।",
+        "possible_conditions": []
+      },
+      "en": {
+        "response": "Do not rely on traditional healers or exorcism if bitten by a snake. Take the affected person to a hospital as quickly as possible. Keep the bitten limb as still as possible.",
+        "possible_conditions": []
+      }
+    }
+  },
+  "হাম": {
+    "keywords": [
+      "হাম",
+      "হামের লক্ষণ",
+      "measles",
+      "measles rash"
+    ],
+    "possible_conditions": [
+      "হামের মতো ভাইরাল সংক্রমণ"
+    ],
+    "response": "ভয় পাওয়ার কিছু নেই। আপনার বর্ণনা অনুযায়ী এটি হামের মতো কোনো ভাইরাল সংক্রমণ হতে পারে।",
+    "tests": [
+      "CBC",
+      "Blood"
+    ],
+    "emergency": true,
+    "translations": {
+      "bn": {
+        "response": "ভয় পাওয়ার কিছু নেই। আপনার বর্ণনা অনুযায়ী এটি হামের মতো কোনো ভাইরাল সংক্রমণ হতে পারে।",
+        "possible_conditions": [
+          ""
+        ]
+      },
+      "en": {
+        "response": "There is no need to panic. Based on your description, this could be a viral infection like measles.",
+        "possible_conditions": [
+          "Measles-like viral infection"
+        ]
+      }
+    }
+  }
+}

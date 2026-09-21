@@ -1,37 +1,522 @@
 [
   {
     "district": "Dhaka",
-    "name": "Dhaka Medical College Hospital",
-    "beds": 35
+    "name": "ঢাকা মেডিকেল কলেজ হাসপাতাল",
+    "name_en": "Dhaka Medical College Hospital",
+    "beds": 35,
+    "ticket": {
+      "location": "নিচ তলার, টিকেট কাউন্টার",
+      "location_en": "Ground floor, ticket counter",
+      "price": 10
+    },
+    "tests": {
+      "CBC": {
+        "location": "৩ তলায়, রুম ৩০৫",
+        "price": 100
+      },
+      "Blood Test": {
+        "location": "৩ তলায়, রুম ৫০৫",
+        "price": 150
+      },
+      "NS1 Antigen": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 200
+      },
+      "ECG": {
+        "location": "৩ তলায়, ইসিজি রুম",
+        "price": 300
+      },
+      "CT Scan": {
+        "location": "১ তলায়, রুম ২০৫",
+        "price": 2000
+      },
+      "MRI": {
+        "location": "১ তলায়, রুম ২০৬",
+        "price": 4000
+      },
+      "X-Ray": {
+        "location": "২ তলায়, রুম ৩০৫",
+        "price": 200
+      },
+      "Urine R/E": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 100
+      },
+      "Urine Culture": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 300
+      }
+    }
   },
   {
     "district": "Narayanganj",
-    "name": "Khanpur Hospital",
-    "beds": 12
+    "name": "খানপুর হাসপাতাল",
+    "name_en": "Khanpur Hospital",
+    "beds": 12,
+    "ticket": {
+      "location": "নিচ তলার, টিকেট কাউন্টার",
+      "location_en": "Ground floor, ticket counter",
+      "price": 10
+    },
+    "tests": {
+      "CBC": {
+        "location": "২ তলায়, রুম ২০৫",
+        "price": 100
+      },
+      "Blood Test": {
+        "location": "২ তলায়, রুম ৩০৫",
+        "price": 150
+      },
+      "NS1 Antigen": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 200
+      },
+      "ECG": {
+        "location": "২ তলায়, ইসিজি রুম",
+        "price": 300
+      },
+      "CT Scan": {
+        "location": "১ তলায়, রুম ১০৫",
+        "price": 2000
+      },
+      "X-Ray": {
+        "location": "১ তলায়, এক্স-রে রুম",
+        "price": 200
+      },
+      "Urine R/E": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 100
+      },
+      "Urine Culture": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 300
+      }
+    }
   },
   {
     "district": "Chattogram",
-    "name": "Chottogram Medical College Hospital",
-    "beds": 20
+    "name": "চট্টগ্রাম মেডিকেল কলেজ হাসপাতাল",
+    "name_en": "Chattogram Medical College Hospital",
+    "beds": 20,
+    "ticket": {
+      "location": "নিচ তলার, টিকেট কাউন্টার",
+      "location_en": "Ground floor, ticket counter",
+      "price": 10
+    },
+    "tests": {
+      "CBC": {
+        "location": "৩ তলায়, রুম ৩০৫",
+        "price": 100
+      },
+      "Blood Test": {
+        "location": "৩ তলায়, রুম ৫০৫",
+        "price": 150
+      },
+      "NS1 Antigen": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 200
+      },
+      "ECG": {
+        "location": "৩ তলায়, ইসিজি রুম",
+        "price": 300
+      },
+      "CT Scan": {
+        "location": "১ তলায়, রুম ২০৫",
+        "price": 2000
+      },
+      "MRI": {
+        "location": "১ তলায়, রুম ২০৬",
+        "price": 4000
+      },
+      "X-Ray": {
+        "location": "২ তলায়, রুম ৩০৫",
+        "price": 200
+      },
+      "Urine R/E": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 100
+      },
+      "Urine Culture": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 300
+      }
+    }
   },
   {
     "district": "Cumilla",
-    "name": "Cumilla medical College hospital",
-    "beds": 24
+    "name": "কুমিল্লা মেডিকেল কলেজ হাসপাতাল",
+    "name_en": "Cumilla Medical College Hospital",
+    "beds": 24,
+    "ticket": {
+      "location": "নিচ তলার, টিকেট কাউন্টার",
+      "location_en": "Ground floor, ticket counter",
+      "price": 10
+    },
+    "tests": {
+      "CBC": {
+        "location": "৩ তলায়, রুম ৩০৫",
+        "price": 100
+      },
+      "Blood Test": {
+        "location": "৩ তলায়, রুম ৫০৫",
+        "price": 150
+      },
+      "NS1 Antigen": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 200
+      },
+      "ECG": {
+        "location": "৩ তলায়, ইসিজি রুম",
+        "price": 300
+      },
+      "CT Scan": {
+        "location": "১ তলায়, রুম ১০২",
+        "price": 2000
+      },
+      "X-Ray": {
+        "location": "২ তলায়, রুম ২০২",
+        "price": 200
+      },
+      "Urine R/E": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 100
+      },
+      "Urine Culture": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 300
+      }
+    }
   },
   {
     "district": "Noakhali",
-    "name": "Noakhali Govt hospital",
-    "beds": 12
+    "name": "নোয়াখালী সরকারি হাসপাতাল",
+    "name_en": "Noakhali Government Hospital",
+    "beds": 12,
+    "ticket": {
+      "location": "নিচ তলার, টিকেট কাউন্টার",
+      "location_en": "Ground floor, ticket counter",
+      "price": 10
+    },
+    "tests": {
+      "CBC": {
+        "location": "২ তলায়, রুম ২০৫",
+        "price": 100
+      },
+      "Blood Test": {
+        "location": "২ তলায়, রুম ৩০৫",
+        "price": 150
+      },
+      "NS1 Antigen": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 200
+      },
+      "ECG": {
+        "location": "২ তলায়, ইসিজি রুম",
+        "price": 300
+      },
+      "X-Ray": {
+        "location": "১ তলায়, রুম ১০৪",
+        "price": 200
+      },
+      "Urine R/E": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 100
+      },
+      "Urine Culture": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 300
+      }
+    }
   },
   {
     "district": "Sylhet",
-    "name": "Sylhet Govt hospital",
-    "beds": 25
+    "name": "সিলেট সরকারি হাসপাতাল",
+    "name_en": "Sylhet Government Hospital",
+    "beds": 25,
+    "ticket": {
+      "location": "নিচ তলার, টিকেট কাউন্টার",
+      "location_en": "Ground floor, ticket counter",
+      "price": 10
+    },
+    "tests": {
+      "CBC": {
+        "location": "৩ তলায়, রুম ৩০৫",
+        "price": 100
+      },
+      "Blood Test": {
+        "location": "৩ তলায়, রুম ৫০৫",
+        "price": 150
+      },
+      "NS1 Antigen": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 200
+      },
+      "ECG": {
+        "location": "৩ তলায়, ইসিজি রুম",
+        "price": 300
+      },
+      "CT Scan": {
+        "location": "১ তলায়, রুম ১০৫",
+        "price": 2000
+      },
+      "X-Ray": {
+        "location": "২ তলায়, রুম ২০৫",
+        "price": 200
+      },
+      "Urine R/E": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 100
+      },
+      "Urine Culture": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 300
+      }
+    }
   },
   {
-    "district": "Rajhshahi",
-    "name": "Rajhshahi Govt hospital",
-    "beds": 28
+    "district": "Rajshahi",
+    "name": "রাজশাহী সরকারি হাসপাতাল",
+    "name_en": "Rajshahi Government Hospital",
+    "beds": 28,
+    "ticket": {
+      "location": "নিচ তলার, টিকেট কাউন্টার",
+      "location_en": "Ground floor, ticket counter",
+      "price": 10
+    },
+    "tests": {
+      "CBC": {
+        "location": "৩ তলায়, রুম ৩০৫",
+        "price": 100
+      },
+      "Blood Test": {
+        "location": "৩ তলায়, রুম ৫০৫",
+        "price": 150
+      },
+      "NS1 Antigen": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 200
+      },
+      "ECG": {
+        "location": "৩ তলায়, ইসিজি রুম",
+        "price": 300
+      },
+      "CT Scan": {
+        "location": "১ তলায়, রুম ২০৫",
+        "price": 2000
+      },
+      "MRI": {
+        "location": "১ তলায়, রুম ২০৬",
+        "price": 4000
+      },
+      "X-Ray": {
+        "location": "২ তলায়, রুম ৩০৫",
+        "price": 200
+      },
+      "Urine R/E": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 100
+      },
+      "Urine Culture": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 300
+      }
+    }
+  },
+  {
+    "district": "Hatiya",
+    "name": "হাতিয়া উপজেলা স্বাস্থ্য কমপ্লেক্স",
+    "name_en": "Hatiya Upazila Health Complex",
+    "beds": 10,
+    "ticket": {
+      "location": "নিচ তলার, টিকেট কাউন্টার",
+      "location_en": "Ground floor, ticket counter",
+      "price": 10
+    },
+    "tests": {
+      "CBC": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 100
+      },
+      "Blood Test": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 150
+      },
+      "NS1 Antigen": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 200
+      },
+      "ECG": {
+        "location": "১ তলায়, ইসিজি রুম",
+        "price": 300
+      },
+      "X-Ray": {
+        "location": "১ তলায়, এক্স-রে রুম",
+        "price": 200
+      },
+      "Urine R/E": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 100
+      }
+    }
+  },
+  {
+    "district": "Siddhirganj",
+    "name": "সিদ্ধিরগঞ্জ উপজেলা স্বাস্থ্য কমপ্লেক্স",
+    "name_en": "Siddhirganj Upazila Health Complex",
+    "beds": 10,
+    "ticket": {
+      "location": "নিচ তলার, টিকেট কাউন্টার",
+      "location_en": "Ground floor, ticket counter",
+      "price": 10
+    },
+    "tests": {
+      "CBC": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 100
+      },
+      "Blood Test": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 150
+      },
+      "NS1 Antigen": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 200
+      },
+      "ECG": {
+        "location": "১ তলায়, ইসিজি রুম",
+        "price": 300
+      },
+      "X-Ray": {
+        "location": "১ তলায়, এক্স-রে রুম",
+        "price": 200
+      },
+      "Urine R/E": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 100
+      }
+    }
+  },
+  {
+    "district": "Fatullah",
+    "name": "ফতুল্লা স্বাস্থ্য কমপ্লেক্স",
+    "name_en": "Fatullah Health Complex",
+    "beds": 10,
+    "ticket": {
+      "location": "নিচ তলার, টিকেট কাউন্টার",
+      "location_en": "Ground floor, ticket counter",
+      "price": 10
+    },
+    "tests": {
+      "CBC": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 100
+      },
+      "Blood Test": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 150
+      },
+      "NS1 Antigen": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 200
+      },
+      "ECG": {
+        "location": "১ তলায়, ইসিজি রুম",
+        "price": 300
+      },
+      "X-Ray": {
+        "location": "১ তলায়, এক্স-রে রুম",
+        "price": 200
+      },
+      "Urine R/E": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 100
+      }
+    }
+  },
+  {
+    "district": "Kanchpur",
+    "name": "কাঁচপুর স্বাস্থ্য কমপ্লেক্স",
+    "name_en": "Kanchpur Health Complex",
+    "beds": 10,
+    "ticket": {
+      "location": "নিচ তলার, টিকেট কাউন্টার",
+      "location_en": "Ground floor, ticket counter",
+      "price": 10
+    },
+    "tests": {
+      "CBC": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 100
+      },
+      "Blood Test": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 150
+      },
+      "NS1 Antigen": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 200
+      },
+      "ECG": {
+        "location": "১ তলায়, ইসিজি রুম",
+        "price": 300
+      },
+      "X-Ray": {
+        "location": "১ তলায়, এক্স-রে রুম",
+        "price": 200
+      },
+      "Urine R/E": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 100
+      }
+    }
+  },
+  {
+    "district": "Chankharpool",
+    "name": "ঢাকা মেডিকেল কলেজ হাসপাতাল",
+    "name_en": "Dhaka Medical College Hospital",
+    "beds": 35,
+    "ticket": {
+      "location": "নিচ তলার, টিকেট কাউন্টার",
+      "location_en": "Ground floor, ticket counter",
+      "price": 10
+    },
+    "tests": {
+      "CBC": {
+        "location": "৩ তলায়, রুম ৩০৫",
+        "price": 100
+      },
+      "Blood Test": {
+        "location": "৩ তলায়, রুম ৫০৫",
+        "price": 150
+      },
+      "NS1 Antigen": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 200
+      },
+      "ECG": {
+        "location": "৩ তলায়, ইসিজি রুম",
+        "price": 300
+      },
+      "CT Scan": {
+        "location": "১ তলায়, রুম ২০৫",
+        "price": 2000
+      },
+      "MRI": {
+        "location": "১ তলায়, রুম ২০৬",
+        "price": 4000
+      },
+      "X-Ray": {
+        "location": "২ তলায়, রুম ৩০৫",
+        "price": 200
+      },
+      "Urine R/E": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 100
+      },
+      "Urine Culture": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "price": 300
+      }
+    }
   }
 ]

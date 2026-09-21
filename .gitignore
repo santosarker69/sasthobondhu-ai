@@ -1,7 +1,9 @@
-venv/
+venv/ 
 voice.wav
-voice.webm
+voice.webm 
 __pycache__/
-*.pyc
-app_backup.py
-app_backup2.py
+*.pyc 
+app_backup.py 
+app_backup2.py 
+static/reply_*.mp3
+.env

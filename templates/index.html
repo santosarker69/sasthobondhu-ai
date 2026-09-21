@@ -211,6 +211,30 @@
             color: #666;
             margin-top: 80px;
         }
+        .language-selector {
+    position: absolute;
+    top: 15px;
+    left: 25px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 10;
+}
+
+.language-selector label {
+    font-size: 14px;
+    color: #475569;
+    font-weight: bold;
+}
+
+.language-selector select {
+    padding: 7px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: white;
+    font-size: 14px;
+    cursor: pointer;
+}
     </style>
 </head>
 <body>
@@ -218,21 +242,29 @@
 <div class="container">
 
     <div class="header">
+        <div class="language-selector">
+            <label for="languageSelect">🌐 Language</label>
+            <select id="languageSelect">
+                <option value="bn" {% if language == "bn" %}selected{% endif %}>🇧🇩 বাংলা</option>
+                <option value="en" {% if language == "en" %}selected{% endif %}>🇬🇧 English</option>
+                <option value="fr" {% if language == "fr" %}selected{% endif %}>🇫🇷 Français</option>
+            </select>
+        </div>
         <div class="header-center">
-            <h1><img src="{{ url_for('static', filename='logo.jpg') }}" alt="স্বাস্থ্যবন্ধু AI লোগো" class="header-title-logo">স্বাস্থ্যবন্ধু AI</h1>
-            <p class="tagline">Your First Ever AI-Based Health Advisor</p>
+            <h1><img src="{{ url_for('static', filename='logo.jpg') }}" alt="স্বাস্থ্যবন্ধু AI লোগো" class="header-title-logo"><span id="appName">স্বাস্থ্যবন্ধু AI</span></h1>
+            <p class="tagline" id="tagline">Your First Ever AI-Based Health Advisor</p>
             <p class="version">স্বাস্থ্যবন্ধু AI v1.0 Prototype</p>
         </div>
 
         <div class="top-buttons">
             <button id="hotlineBtn" title="Future AI Hotline. Currently under process.">
                 <span class="btn-icon">📞</span>
-                <span class="btn-text">16263</span>
+                <span class="btn-text" id="hotlineText">16263</span>
             </button>
 
             <button id="futureBtn" title="Future Updates">
                 <span class="btn-icon">🚀</span>
-                <span class="btn-text">ফিউচার আপডেট</span>
+                <span class="btn-text" id="futureText">ফিউচার আপডেট</span>
             </button>
         </div>
     </div>
@@ -240,8 +272,8 @@
     <div class="chat-area">
         {% if chat_history|length == 0 %}
         <div class="empty-state">
-            <h2>👋 স্বাগতম!</h2>
-            <p>আপনার স্বাস্থ্য সমস্যা লিখুন এবং স্বাস্থ্যবন্ধু AI-এর সাহায্য নিন।</p>
+            <h2 id="welcomeTitle">👋 স্বাগতম!</h2>
+            <p id="welcomeMessage">আপনার স্বাস্থ্য সমস্যা লিখুন এবং স্বাস্থ্যবন্ধু AI-এর সাহায্য নিন।</p>
         </div>
         {% endif %}
 
@@ -259,10 +291,11 @@
     </div>
 
     <div class="input-area">
-        <form method="POST" id="chatForm">            
+        <form method="POST" id="chatForm">
+            <input type="hidden" name="language" id="selectedLanguage" value="{{ language }}">   
             <input type="text" id="message" name="message" placeholder="আপনার সমস্যা লিখুন..." required>
-            <button type="button" onclick="startListening()">🎤 Speak</button>
-            <button type="submit">Send</button>
+            <button type="button" id="speakBtn" onclick="startListening()">🎤 Speak</button>
+            <button type="submit" id="sendBtn">Send</button>
         </form>
     </div>
 
@@ -271,71 +304,211 @@
 <script>
 let recognition;
 let silenceTimer;
+let currentLanguage = {};
 
 function startListening() {
-    // আগের কোনো রেকর্ডিং চালু থাকলে তা বন্ধ করার জন্য
+
     if (recognition) {
-        recognition.stop();
+        try {
+            recognition.abort();
+        } catch (e) {}
     }
 
-    recognition = new webkitSpeechRecognition();
-    recognition.lang = "bn-BD";
-    
-    // === প্রধান পরিবর্তনসমূহ ===
-    recognition.continuous = true; // কথা থামালেও সে জোর করে শোনা বন্ধ করবে না
-    recognition.interimResults = true; // রিয়েল-টাইমে কথা ডিটেক্ট করে ইনপুট বক্সে দেখাবে
+    const SpeechRecognition =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+        alert("Speech recognition is not supported in this browser.");
+        return;
+    }
+
+    recognition = new SpeechRecognition();
+
+    const selectedLang =
+        document.getElementById("selectedLanguage").value;
+
+    const messageBox = document.getElementById("message");
+    const chatForm = document.getElementById("chatForm");
+    const speakBtn = document.getElementById("speakBtn");
+
+    // =========================
+    // LANGUAGE
+    // =========================
+
+    if (selectedLang === "en") {
+        recognition.lang = "en-IN";
+    } else if (selectedLang === "fr") {
+        recognition.lang = "fr-FR";
+    } else {
+        recognition.lang = "bn-BD";
+    }
+
+    // =========================
+    // RECOGNITION SETTINGS
+    // =========================
+
+    recognition.continuous = true;
+    recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
-    // ইউজারকে বোঝানোর জন্য বাটনের টেক্সট পরিবর্তন
-    const speakBtn = document.querySelector("#chatForm button[type='button']");
-    const originalText = speakBtn.innerHTML;
-    speakBtn.innerHTML = "🎙️ Listening...";
-    speakBtn.style.background = "#dc2626"; // লাইভ রেকর্ডিং বোঝাতে লাল কালার (ঐচ্ছিক)
+    let finalText = "";
+    let submitted = false;
+    let silenceTimer = null;
+    let restartTimer = null;
 
-    recognition.start();
+    const originalText = speakBtn.innerHTML;
+
+    speakBtn.innerHTML = "🎙️ Listening...";
+    speakBtn.style.background = "#dc2626";
+
+    // =========================
+    // SUBMIT FUNCTION
+    // =========================
+
+    function submitSpeech() {
+
+        if (submitted) return;
+
+        const text = messageBox.value.trim();
+
+        if (text === "") return;
+
+        submitted = true;
+
+        clearTimeout(silenceTimer);
+        clearTimeout(restartTimer);
+
+        try {
+            recognition.stop();
+        } catch (e) {}
+
+        speakBtn.innerHTML = originalText;
+        speakBtn.style.background = "#2563eb";
+
+        chatForm.submit();
+    }
+
+    // =========================
+    // LIVE TRANSCRIPTION
+    // =========================
 
     recognition.onresult = function(event) {
-        // একদম শেষ কথাটি খুঁজে বের করার জন্য লুপ
-        let finalTranscript = '';
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-            if (event.results[i].isFinal || event.results[i][0].transcript) {
-                finalTranscript += event.results[i][0].transcript;
+        let transcript = "";
+
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            if (event.results[i].isFinal) {
+                transcript += event.results[i][0].transcript + " ";
             }
         }
 
-        // ইনপুট বক্সে রিয়েল-টাইম লেখাটি বসাবে
-        if(finalTranscript.trim() !== "") {
-            document.getElementById("message").value = finalTranscript;
+        transcript = transcript.trim();
+
+        if (transcript !== "") {
+            messageBox.value +=
+                (messageBox.value ? " " : "") + transcript;
         }
 
-        // === সাইলেন্স টাইমার লজিক ===
-        // ইউজার কথা বলা বন্ধ করলে কতক্ষণ অপেক্ষা করবে (এখানে ২০০০ মিলিসেকেন্ড বা ২ সেকেন্ড দেওয়া)
         clearTimeout(silenceTimer);
+
         silenceTimer = setTimeout(() => {
-            recognition.stop(); // রেকর্ডিং বন্ধ করো
-            speakBtn.innerHTML = originalText; // বাটন আগের মতো করো
+            submitSpeech();
+        }, 2500);
+    };
+    // =========================
+    // RECOGNITION END
+    // =========================
+
+    recognition.onend = function() {
+
+        if (submitted) return;
+
+        /*
+         * Chrome মাঝে মাঝে recognition নিজে থেকেই end করে।
+         * তাই text থাকলে সঙ্গে সঙ্গে submit করব না।
+         * আবার recognition চালু করার চেষ্টা করব।
+         */
+
+        if (messageBox.value.trim() !== "") {
+
+            clearTimeout(restartTimer);
+
+            restartTimer = setTimeout(() => {
+
+                if (!submitted) {
+
+                    try {
+                        recognition.start();
+                    } catch (e) {
+                        console.log(
+                            "Recognition restart error:",
+                            e
+                        );
+                    }
+
+                }
+
+            }, 200);
+
+        } else {
+
+            speakBtn.innerHTML = originalText;
             speakBtn.style.background = "#2563eb";
-            
-            // ইনপুট খালি না থাকলে ফর্ম সাবমিট করো
-            if(document.getElementById("message").value.trim() !== "") {
-                document.getElementById("chatForm").submit();
-            }
-        }, 2000); // ২ সেকেন্ড সম্পূর্ণ চুপ থাকলে তবেই সাবমিট হবে। প্রয়োজনে এটা বাড়াতে/কমাতে পারো।
+        }
     };
 
-    // কোনো কারণে এরর হলে বা নিজে থেকে বন্ধ হলে বাটন ঠিক করার জন্য
-    recognition.onerror = recognition.onend = function() {
-        // টাইমার সচল থাকলে সাবমিট হবে, নয়তো বাটন নরমাল হবে
-        setTimeout(() => {
-            if (speakBtn.innerHTML === "🎙️ Listening...") {
-                speakBtn.innerHTML = originalText;
-                speakBtn.style.background = "#2563eb";
-            }
-        }, 3000);
+    // =========================
+    // ERROR
+    // =========================
+
+    recognition.onerror = function(event) {
+
+        console.log(
+            "Speech recognition error:",
+            event.error
+        );
+
+        if (
+            event.error === "no-speech" ||
+            event.error === "aborted"
+        ) {
+            return;
+        }
+
+        clearTimeout(silenceTimer);
+        clearTimeout(restartTimer);
+
+        speakBtn.innerHTML = originalText;
+        speakBtn.style.background = "#2563eb";
     };
+
+    // =========================
+    // START
+    // =========================
+
+    try {
+
+        recognition.start();
+
+    } catch (e) {
+
+        console.log(
+            "Recognition start error:",
+            e
+        );
+
+        speakBtn.innerHTML = originalText;
+        speakBtn.style.background = "#2563eb";
+    }
 }
 
+
+const initialLanguage = "{{ language }}";
+
 window.onload = function(){
+
+    document.getElementById("languageSelect").value = initialLanguage;
+    document.getElementById("selectedLanguage").value = initialLanguage;
+
     let chatArea = document.querySelector(".chat-area");
     if(chatArea){
         chatArea.scrollTop = chatArea.scrollHeight;
@@ -345,15 +518,77 @@ window.onload = function(){
     if(audio){
         audio.playbackRate = 1.5;
     }
+    
+    document.getElementById("languageSelect").dispatchEvent(
+        new Event("change")
+    );
+
 }
 
 document.getElementById("hotlineBtn").onclick = function(){
-    alert("Future AI Hotline\n\nCurrently Under Process");
+    alert(currentLanguage.hotline_alert);
 }
 
 document.getElementById("futureBtn").onclick = function(){
-    alert(`Future Updates\n\n1. AI Hotline Service\n2. 64 District Coverage\n3. Ambulance Integration\n4. Government Partnership`);
+    alert(currentLanguage.future_alert);
 }
+
+document.getElementById("languageSelect").addEventListener("change", async function () {
+
+    const language = this.value;
+    await fetch("/set-language", {
+        method: "POST",
+        headers: {
+         "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            language: language
+        })
+    });
+
+    document.getElementById("selectedLanguage").value = language;
+
+    try {
+        const response = await fetch(`/static/languages/${language}.json`);
+
+        if (!response.ok) {
+            throw new Error("Language file not found");
+        }
+
+        const lang = await response.json();
+        currentLanguage = lang;
+
+        document.getElementById("tagline").textContent = lang.tagline;
+        document.getElementById("appName").textContent = lang.app_name;
+        const welcomeTitle = document.getElementById("welcomeTitle");
+        if (welcomeTitle) {
+            welcomeTitle.textContent = lang.welcome_title;
+        }
+
+        const welcomeMessage = document.getElementById("welcomeMessage");
+        if (welcomeMessage) {
+            welcomeMessage.textContent = lang.welcome_text;
+        }
+        document.getElementById("message").placeholder =
+            lang.input_placeholder;
+
+        document.getElementById("speakBtn").textContent =
+            lang.speak;
+
+        document.getElementById("sendBtn").textContent =
+            lang.send;
+        document.getElementById("hotlineText").textContent =
+            lang.hotline;
+
+        document.getElementById("futureText").textContent =
+            lang.future_updates;
+
+    } catch (error) {
+        console.error("Language loading error:", error);
+    }
+
+});
+
 </script>
 
 {% if audio_file %}

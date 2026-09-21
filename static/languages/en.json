@@ -1,0 +1,26 @@
+{
+    "app_name": "SasthoBondhu AI",
+    "tagline": "Your First AI-Based Health Advisor",
+    "version": "SasthoBondhu AI v1.0 Prototype",
+
+    "welcome_title": "👋 Welcome!",
+    "welcome_text": "Describe your health problem and get help from SasthoBondhu AI.",
+
+    "input_placeholder": "Describe your problem...",
+    "speak": "🎤 Speak",
+    "send": "Send",
+
+    "patient": "👤 Patient:",
+    "assistant": "🤖 SasthoBondhu:",
+
+    "hotline": "16263",
+    "future_updates": "Future Updates",
+
+    "hotline_alert": "Future AI Hotline\n\nCurrently Under Process",
+
+    "future_alert": "Future Updates\n\n1. AI Hotline Service\n2. 64 District Coverage\n3. Ambulance Integration\n4. Government Partnership",
+
+    "ask_name": "Dear user, please tell me your name?",
+    "welcome_patient": "Welcome {name}.\n\nI am SasthoBondhu.\n\nPlease describe your health problem.",
+    "ask_location": "{name}, your problem has been noted.\n\nWhere do you live?"
+}

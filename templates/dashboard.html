@@ -1,147 +1,555 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
 
-<title>Admin Dashboard</title>
+    <meta charset="UTF-8">
 
-<style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-body{
-font-family:Arial;
-background:#f5f7fa;
-padding:40px;
-}
+    <title>স্বাস্থ্যবন্ধু AI — Dashboard</title>
 
-.container{
-max-width:800px;
-margin:auto;
-background:white;
-padding:30px;
-border-radius:15px;
-box-shadow:0 0 10px rgba(0,0,0,0.1);
-}
+    <style>
 
-.card{
-background:#eef6ff;
-padding:15px;
-margin:10px 0;
-border-radius:10px;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-h1{
-text-align:center;
-}
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+            padding: 30px;
+        }
 
-.recent-box{
-    background:white;
-    padding:20px;
-    border-radius:15px;
-    margin-top:20px;
-    box-shadow:0 2px 10px rgba(0,0,0,0.1);
-}
+        .dashboard {
+            max-width: 1200px;
+            margin: auto;
+        }
 
-</style>
+        /* =========================
+           HEADER
+        ========================= */
+
+        .header {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 18px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+
+        .header h1 {
+            color: #0284c7;
+            font-size: 30px;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        /* =========================
+           SUMMARY CARDS
+        ========================= */
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 22px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .summary-card .icon {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .summary-card .title {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .summary-card .value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #0f172a;
+        }
+
+        /* =========================
+           TWO COLUMN
+        ========================= */
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .panel {
+            background: white;
+            padding: 25px;
+            border-radius: 18px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .panel h2 {
+            font-size: 20px;
+            margin-bottom: 18px;
+        }
+
+        .highlight {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            padding: 20px;
+            border-radius: 14px;
+        }
+
+        .highlight .small {
+            color: #64748b;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .highlight .big {
+            color: #0284c7;
+            font-size: 25px;
+            font-weight: bold;
+        }
+
+        /* =========================
+           TABLE
+        ========================= */
+
+        .table-panel {
+            background: white;
+            padding: 25px;
+            border-radius: 18px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            overflow-x: auto;
+        }
+
+        .table-panel h2 {
+            margin-bottom: 18px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #475569;
+            text-align: left;
+            padding: 13px;
+            font-size: 13px;
+        }
+
+        td {
+            padding: 13px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 14px;
+        }
+
+        .count {
+            font-weight: bold;
+            color: #0284c7;
+        }
+
+        .location-list {
+            color: #475569;
+            line-height: 1.7;
+        }
+
+        /* =========================
+           DISTRICT
+        ========================= */
+
+        .district-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .district-card {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .district-name {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+
+        .district-count {
+            font-size: 21px;
+            font-weight: bold;
+        }
+
+        /* =========================
+           RECENT CHATS
+        ========================= */
+
+        .recent-chat {
+            padding: 15px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .recent-chat:last-child {
+            border-bottom: none;
+        }
+
+        .chat-message {
+            font-weight: bold;
+            margin-bottom: 7px;
+        }
+
+        .chat-meta {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .empty {
+            color: #94a3b8;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 850px) {
+
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+
+            .district-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+        }
+
+        @media (max-width: 500px) {
+
+            body {
+                padding: 15px;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .district-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+        }
+
+    </style>
 
 </head>
 
+
 <body>
 
-<div class="container">
+<div class="dashboard">
 
-<h1>📊 স্বাস্থ্যবন্ধু Dashboard</h1>
+    <!-- HEADER -->
 
-<div class="card">
-মোট প্রশ্ন: {{ data.total_users }}
+    <div class="header">
+
+        <h1>📊 স্বাস্থ্যবন্ধু AI Dashboard</h1>
+
+        <p>
+            স্বাস্থ্যবন্ধু AI-এর ব্যবহার, রোগের প্রবণতা এবং এলাকার পরিসংখ্যান
+        </p>
+
+    </div>
+
+
+    <!-- SUMMARY -->
+
+    <div class="summary-grid">
+
+        <div class="summary-card">
+
+            <div class="icon">💬</div>
+
+            <div class="title">
+                মোট রিপোর্ট
+            </div>
+
+            <div class="value">
+                {{ data.total_reports }}
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="icon">🩺</div>
+
+            <div class="title">
+                সর্বাধিক রিপোর্টকৃত সমস্যা
+            </div>
+
+            <div class="value">
+                {{ top_disease }}
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="icon">📍</div>
+
+            <div class="title">
+                সর্বাধিক ব্যবহারকারী এলাকা
+            </div>
+
+            <div class="value">
+                {{ top_district }}
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="icon">🎫</div>
+
+            <div class="title">
+                টিকিট বুকিং
+            </div>
+
+            <div class="value">
+                {{ tickets.total_tickets }}
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- HIGHLIGHTS -->
+
+    <div class="two-column">
+
+        <div class="panel">
+
+            <h2>🏆 সর্বাধিক রিপোর্টকৃত সমস্যা</h2>
+
+            <div class="highlight">
+
+                <div class="small">
+                    Most Reported Disease
+                </div>
+
+                <div class="big">
+                    {{ top_disease }}
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="panel">
+
+            <h2>📍 সর্বাধিক ব্যবহারকারী এলাকা</h2>
+
+            <div class="highlight">
+
+                <div class="small">
+                    Most Active District
+                </div>
+
+                <div class="big">
+                    {{ top_district }}
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- DISEASE STATISTICS -->
+
+    <div class="table-panel">
+
+        <h2>🩺 Disease Statistics</h2>
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>সমস্যা / Disease</th>
+
+                    <th>মোট রিপোর্ট</th>
+
+                    <th>সবচেয়ে বেশি রিপোর্ট</th>
+
+                    <th>এলাকা অনুযায়ী বিস্তারিত</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+            {% for row in disease_rows %}
+
+                <tr>
+
+                    <td>
+                        {{ row.disease }}
+                    </td>
+
+                    <td class="count">
+                        {{ row.total }}
+                    </td>
+
+                    <td>
+                        {{ row.top_location }}
+                        ({{ row.top_location_count }})
+                    </td>
+
+                    <td class="location-list">
+
+                        {% for location, count in row.locations.items() %}
+
+                            {{ location }}: {{ count }}
+
+                            {% if not loop.last %}
+                                •
+                            {% endif %}
+
+                        {% endfor %}
+
+                    </td>
+
+                </tr>
+
+            {% else %}
+
+                <tr>
+
+                    <td colspan="4" class="empty">
+                        এখনো কোনো disease report নেই।
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <!-- DISTRICT STATISTICS -->
+
+    <div class="panel" style="margin-bottom:25px;">
+
+        <h2>📍 District Statistics</h2>
+
+        <div class="district-grid">
+
+        {% for district, count in district_stats.items() %}
+
+            <div class="district-card">
+
+                <div class="district-name">
+                    {{ district }}
+                </div>
+
+                <div class="district-count">
+                    {{ count }}
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+        </div>
+
+    </div>
+
+
+    <!-- RECENT CONVERSATIONS -->
+
+    <div class="panel">
+
+        <h2>💬 Recent Conversations</h2>
+
+        {% for chat in recent_chats|reverse %}
+
+            <div class="recent-chat">
+
+                <div class="chat-message">
+                    🧑 {{ chat.message }}
+                </div>
+
+                <div class="chat-meta">
+
+                    🩺 {{ chat.disease }}
+
+                    &nbsp; • &nbsp;
+
+                    📍 {{ chat.district }}
+
+                </div>
+
+            </div>
+
+        {% else %}
+
+            <div class="empty">
+                এখনো কোনো conversation record নেই।
+            </div>
+
+        {% endfor %}
+
+    </div>
+
 </div>
-
-<div class="card">
-জ্বর: {{ data["জ্বর"] }}
-</div>
-
-<div class="card">
-কাশি: {{ data["কাশি"] }}
-</div>
-
-<div class="card">
-মাথা ব্যথা: {{ data["মাথা ব্যথা"] }}
-</div>
-
-<div class="card">
-পেট ব্যথা: {{ data["পেট ব্যথা"] }}
-</div>
-
-<div class="card">
-অন্যান্য: {{ data["অন্যান্য"] }}
-</div>
-<div class="card">
-🎫 টিকিট বুকিং:
-{{ tickets.total_tickets }}
-</div>
-
-</div>
-
-<div class="card">
-
-    <h3>সর্বাধিক রিপোর্টকৃত সমস্যা:</h3>
-
-    <h2>{{ top_disease }}</h2>
-
-</div>
-
-<div class="card">
-
-    <h3>📍 সর্বাধিক ব্যবহারকারী এলাকা</h3>
-
-    <h2>{{ top_district }}</h2>
-
-</div>
-
-<div class="recent-box">
-    <h2>Disease Statistics:</h2>
-
-    <p>🤒 জ্বর: {{ data['জ্বর'] }}</p>
-
-    <p>😷 কাশি: {{ data['কাশি'] }}</p>
-
-    <p>🤕 মাথা ব্যথা: {{ data['মাথা ব্যথা'] }}</p>
-
-    <p>🤢 পেট ব্যথা: {{ data['পেট ব্যথা'] }}</p>
-
-    <p>📌 অন্যান্য: {{ data['অন্যান্য'] }}</p>
-
-</div>
-
-
-<div class="recent-box">
-    <h2>District Statistics</h2>
-
-    <p>📍 Dhaka: {{ district_stats["Dhaka"] }}</p>
-
-    <p>📍 Narayanganj: {{ district_stats["Narayanganj"] }}</p>
-
-    <p>📍 Chattogram: {{ district_stats["Chattogram"] }}</p>
-
-    <p>📍 Unknown: {{ district_stats["Unknown"] }}</p>
-
-</div>
-
-
-<div class="recent-box">
-    <h2>Recent Conversations:</h2>
-
-{% for chat in recent_chats %}
-
-<p>🧑 {{ chat.message }}</p>
-
-<hr>
-
-{% endfor %}
-
-</div>
-
-
-
 
 </body>
+
 </html>
