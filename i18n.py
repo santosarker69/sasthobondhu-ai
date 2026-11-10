@@ -132,6 +132,21 @@ MSG = {
         "en": "Sorry, I do not have hospital information for {location} yet. If you feel worse, go to the nearest hospital without delay.",
         "id": "Maaf, saya belum memiliki informasi rumah sakit untuk {location}. Jika kondisi Anda memburuk, segera pergi ke rumah sakit terdekat.",
     },
+    "scam_warning": {
+        "bn": "হাসপাতালে কোনো তৃতীয় ব্যক্তি সাহায্যের বিনিময়ে টাকা চাইলে সতর্ক থাকবেন।",
+        "en": "Be cautious if any third party at the hospital asks for money in exchange for assistance.",
+        "id": "Berhati-hatilah jika ada pihak ketiga di rumah sakit yang meminta uang sebagai imbalan bantuan.",
+    },
+    "tests_intro": {
+        "bn": "আপনার সমস্যার জন্য প্রয়োজনীয় টেস্টগুলো নিচে দেওয়া হলো।",
+        "en": "Here are the tests for your problem(s).",
+        "id": "Berikut tes yang diperlukan untuk masalah Anda.",
+    },
+    "demo_note": {
+        "bn": "বিঃদ্রঃ এই হাসপাতালের তথ্য ডেমো ডেটা।",
+        "en": "Note: this hospital information is demo data.",
+        "id": "Catatan: informasi rumah sakit ini adalah data demo.",
+    },
 
     # ---------------- tests / report / admission ----------------
     "test_line": {
