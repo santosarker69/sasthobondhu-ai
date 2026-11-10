@@ -6,7 +6,11 @@
       "গা জ্বলে",
       "fever",
       "feeling feverish",
-      "high temperature"
+      "high temperature",
+      "demam",
+      "badan panas",
+      "meriang",
+      "suhu tinggi"
     ],
     "possible_conditions": [
       "ভাইরাল সংক্রমণ",
@@ -34,6 +38,14 @@
           "Common cold with fever",
           "Other infections"
         ]
+      },
+      "id": {
+        "response": "Demam bisa terjadi karena berbagai infeksi atau penyebab lain. Istirahat yang cukup dan minum banyak air putih. Jika demam tinggi atau berlangsung lama, konsultasikan ke dokter.",
+        "possible_conditions": [
+          "Infeksi virus",
+          "Flu biasa disertai demam",
+          "Infeksi lainnya"
+        ]
       }
     }
   },
@@ -44,7 +56,10 @@
       "কাশি আইতাছে",
       "cough",
       "coughing",
-      "i have a cough"
+      "i have a cough",
+      "batuk",
+      "saya batuk",
+      "batuk-batuk"
     ],
     "possible_conditions": [
       "সর্দি",
@@ -70,6 +85,14 @@
           "Allergy",
           "Respiratory infection"
         ]
+      },
+      "id": {
+        "response": "Batuk bisa terjadi karena pilek, alergi, atau infeksi saluran pernapasan. Minum air yang cukup dan istirahat yang cukup. Konsultasikan ke dokter jika batuk berlanjut.",
+        "possible_conditions": [
+          "Pilek biasa",
+          "Alergi",
+          "Infeksi saluran pernapasan"
+        ]
       }
     }
   },
@@ -79,7 +102,11 @@
       "মাথা ধরছে",
       "headache",
       "head hurts",
-      "i have a headache"
+      "i have a headache",
+      "sakit kepala",
+      "kepala sakit",
+      "kepala saya sakit",
+      "nyeri kepala"
     ],
     "possible_conditions": [
       "ক্লান্তি",
@@ -108,6 +135,15 @@
           "Dehydration",
           "Other causes"
         ]
+      },
+      "id": {
+        "response": "Sakit kepala bisa terjadi karena berbagai sebab. Istirahat yang cukup dan minum air yang cukup. Konsultasikan ke dokter jika nyerinya parah atau sering terjadi.",
+        "possible_conditions": [
+          "Kelelahan",
+          "Kurang tidur",
+          "Dehidrasi",
+          "Penyebab lainnya"
+        ]
       }
     }
   },
@@ -118,7 +154,11 @@
       "পেট ব্যাদা",
       "stomach pain",
       "abdominal pain",
-      "stomach ache"
+      "stomach ache",
+      "sakit perut",
+      "perut sakit",
+      "nyeri perut",
+      "sakit di perut"
     ],
     "possible_conditions": [
       "হজমের সমস্যা",
@@ -147,6 +187,15 @@
           "Infection",
           "Other causes"
         ]
+      },
+      "id": {
+        "response": "Sakit perut bisa terjadi karena berbagai sebab. Jika ringan, beristirahatlah dan minum cairan yang cukup. Konsultasikan ke dokter jika nyerinya parah atau terus-menerus.",
+        "possible_conditions": [
+          "Gangguan pencernaan",
+          "Masalah lambung",
+          "Infeksi",
+          "Penyebab lainnya"
+        ]
       }
     }
   },
@@ -155,7 +204,10 @@
       "বুক ব্যথা",
       "বুকে ব্যথা",
       "chest pain",
-      "pain in chest"
+      "pain in chest",
+      "nyeri dada",
+      "sakit dada",
+      "dada sakit"
     ],
     "possible_conditions": [
       "বিভিন্ন শারীরিক সমস্যা"
@@ -177,6 +229,12 @@
         "possible_conditions": [
           "Various medical conditions"
         ]
+      },
+      "id": {
+        "response": "Segera cari pertolongan medis jika Anda mengalami nyeri dada.",
+        "possible_conditions": [
+          "Berbagai kondisi medis"
+        ]
       }
     }
   },
@@ -187,7 +245,12 @@
       "শ্বাস নিতে পারছি না",
       "shortness of breath",
       "breathing difficulty",
-      "cannot breathe"
+      "cannot breathe",
+      "sesak napas",
+      "sesak nafas",
+      "sulit bernapas",
+      "susah bernapas",
+      "tidak bisa bernapas"
     ],
     "possible_conditions": [
       "বিভিন্ন শ্বাসযন্ত্রের সমস্যা"
@@ -207,6 +270,12 @@
         "possible_conditions": [
           "Various respiratory issues"
         ]
+      },
+      "id": {
+        "response": "Sesak napas memerlukan penanganan medis segera. Segera pergi ke instalasi gawat darurat jika pernapasan menjadi sangat sulit atau memburuk.",
+        "possible_conditions": [
+          "Berbagai gangguan pernapasan"
+        ]
       }
     }
   },
@@ -217,7 +286,11 @@
       "পায়খানা হচ্ছে",
       "diarrhea",
       "loose motion",
-      "watery stool"
+      "watery stool",
+      "diare",
+      "mencret",
+      "bab cair",
+      "buang air besar cair"
     ],
     "possible_conditions": [
       "সংক্রমণ",
@@ -243,6 +316,14 @@
           "Food-related issues",
           "Other causes"
         ]
+      },
+      "id": {
+        "response": "Diare dapat menyebabkan dehidrasi. Minum cairan yang cukup dan oralit. Konsultasikan ke dokter jika kondisinya menjadi parah atau muncul tanda-tanda dehidrasi.",
+        "possible_conditions": [
+          "Infeksi",
+          "Masalah terkait makanan",
+          "Penyebab lainnya"
+        ]
       }
     }
   },
@@ -252,7 +333,10 @@
       "বমি হচ্ছে",
       "vomiting",
       "throwing up",
-      "nausea and vomiting"
+      "nausea and vomiting",
+      "muntah",
+      "muntah-muntah",
+      "mual dan muntah"
     ],
     "possible_conditions": [
       "পেটের সমস্যা",
@@ -281,6 +365,15 @@
           "Food-related issues",
           "Other problems"
         ]
+      },
+      "id": {
+        "response": "Saat muntah, minumlah cairan sedikit-sedikit tetapi sering untuk mencegah dehidrasi. Konsultasikan ke dokter jika muntah terus-menerus atau Anda tidak bisa menahan cairan.",
+        "possible_conditions": [
+          "Masalah lambung",
+          "Infeksi",
+          "Masalah terkait makanan",
+          "Masalah lainnya"
+        ]
       }
     }
   },
@@ -292,7 +385,11 @@
       "সাপ কামড়েছে",
       "সাপের কামড়",
       "snake bite",
-      "bitten by a snake"
+      "bitten by a snake",
+      "digigit ular",
+      "gigitan ular",
+      "dipatuk ular",
+      "kena gigit ular"
     ],
     "possible_conditions": [],
     "response": "সাপে কামড়ালে কোনো ওঝা, ঝাড়ফুঁক বা গ্রাম্য চিকিৎসার ওপর নির্ভর করবেন না। আক্রান্ত ব্যক্তিকে যত দ্রুত সম্ভব হাসপাতালে নিয়ে যান। আক্রান্ত অঙ্গটি যতটা সম্ভব স্থির রাখুন।",
@@ -306,6 +403,10 @@
       "en": {
         "response": "Do not rely on traditional healers or exorcism if bitten by a snake. Take the affected person to a hospital as quickly as possible. Keep the bitten limb as still as possible.",
         "possible_conditions": []
+      },
+      "id": {
+        "response": "Jangan mengandalkan dukun atau ritual tradisional jika digigit ular. Bawa korban ke rumah sakit secepat mungkin. Jaga agar anggota tubuh yang tergigit sebisa mungkin tidak bergerak.",
+        "possible_conditions": []
       }
     }
   },
@@ -314,7 +415,8 @@
       "হাম",
       "হামের লক্ষণ",
       "measles",
-      "measles rash"
+      "measles rash",
+      "campak"
     ],
     "possible_conditions": [
       "হামের মতো ভাইরাল সংক্রমণ"
@@ -337,6 +439,12 @@
         "possible_conditions": [
           "Measles-like viral infection"
         ]
+      },
+      "id": {
+        "response": "Tidak perlu panik. Berdasarkan gambaran Anda, ini bisa jadi infeksi virus seperti campak.",
+        "possible_conditions": [
+          "Infeksi virus mirip campak"
+        ]
       }
     }
   },
@@ -347,7 +455,11 @@
       "চোখের পেছনে ব্যথা",
       "dengue",
       "dengue fever",
-      "high fever with rash"
+      "high fever with rash",
+      "demam berdarah",
+      "dbd",
+      "nyeri di belakang mata",
+      "mata nyeri di belakang"
     ],
     "possible_conditions": [
       "ডেঙ্গু ভাইরাস সংক্রমণ"
@@ -370,6 +482,12 @@
         "possible_conditions": [
           "Dengue virus infection"
         ]
+      },
+      "id": {
+        "response": "Demam tinggi, nyeri badan, dan nyeri di belakang mata bisa menjadi gejala demam berdarah dengue. Jaga agar tubuh tetap terhidrasi dan konsultasikan ke dokter untuk pemeriksaan darah. Segera cari pertolongan medis darurat jika muncul bintik merah atau pendarahan.",
+        "possible_conditions": [
+          "Infeksi virus dengue"
+        ]
       }
     }
   },
@@ -382,7 +500,13 @@
       "stroke",
       "face drooping",
       "arm weakness",
-      "slurred speech"
+      "slurred speech",
+      "wajah mencong",
+      "wajah merot",
+      "bicara pelo",
+      "lengan lemah",
+      "separuh badan lumpuh",
+      "satu sisi lemah"
     ],
     "possible_conditions": [
       "মস্তিষ্কে রক্ত সঞ্চালনে বাধা বা রক্তপাত"
@@ -405,6 +529,12 @@
         "possible_conditions": [
           "Cerebrovascular accident or brain hemorrhage"
         ]
+      },
+      "id": {
+        "response": "Ini adalah kondisi darurat medis yang kritis. Segera bawa orang tersebut ke instalasi gawat darurat terdekat. Jangan menunda.",
+        "possible_conditions": [
+          "Gangguan pembuluh darah otak (stroke) atau perdarahan otak"
+        ]
       }
     }
   },
@@ -416,7 +546,11 @@
       "allergy",
       "itching",
       "skin hives",
-      "rashes"
+      "rashes",
+      "alergi",
+      "gatal",
+      "biduran",
+      "ruam"
     ],
     "possible_conditions": [
       "খাদ্য বা পরিবেশগত অ্যালার্জি",
@@ -439,6 +573,13 @@
           "Food or environmental allergy",
           "Skin sensitivity"
         ]
+      },
+      "id": {
+        "response": "Alergi dapat menyebabkan kemerahan atau gatal pada kulit. Hindari kemungkinan pemicunya. Segera cari pertolongan medis jika wajah bengkak atau sulit bernapas.",
+        "possible_conditions": [
+          "Alergi makanan atau lingkungan",
+          "Kulit sensitif"
+        ]
       }
     }
   },
@@ -449,7 +590,11 @@
       "পিঠে ব্যথা",
       "back pain",
       "lower back pain",
-      "back ache"
+      "back ache",
+      "sakit punggung",
+      "nyeri punggung",
+      "sakit pinggang",
+      "punggung sakit"
     ],
     "possible_conditions": [
       "পেশির টান",
@@ -477,6 +622,14 @@
           "Poor posture",
           "Spinal issues"
         ]
+      },
+      "id": {
+        "response": "Sakit punggung sering disebabkan oleh ketegangan otot atau masalah postur. Hindari mengangkat benda berat dan jaga postur tubuh yang baik. Konsultasikan ke dokter jika nyeri berlanjut atau menjalar ke kaki.",
+        "possible_conditions": [
+          "Ketegangan otot",
+          "Postur tubuh yang buruk",
+          "Masalah tulang belakang"
+        ]
       }
     }
   },
@@ -487,7 +640,11 @@
       "ঢোক গিলতে কষ্ট",
       "sore throat",
       "throat pain",
-      "difficulty swallowing"
+      "difficulty swallowing",
+      "sakit tenggorokan",
+      "tenggorokan sakit",
+      "nyeri tenggorokan",
+      "sulit menelan"
     ],
     "possible_conditions": [
       "টনসিলাইটিস",
@@ -513,6 +670,14 @@
           "Viral infection",
           "Common cold"
         ]
+      },
+      "id": {
+        "response": "Sakit tenggorokan biasanya disebabkan oleh pilek atau infeksi. Berkumurlah dengan air garam hangat dan tetap terhidrasi dengan cairan hangat. Konsultasikan ke dokter jika Anda demam tinggi atau sangat sulit menelan.",
+        "possible_conditions": [
+          "Radang amandel",
+          "Infeksi virus",
+          "Pilek biasa"
+        ]
       }
     }
   },
@@ -523,7 +688,12 @@
       "রক্ত বন্ধ হচ্ছে না",
       "heavy bleeding",
       "severe bleeding",
-      "uncontrolled bleeding"
+      "uncontrolled bleeding",
+      "pendarahan hebat",
+      "perdarahan hebat",
+      "darah tidak berhenti",
+      "pendarahan",
+      "perdarahan"
     ],
     "possible_conditions": [
       "গভীর ক্ষত",
@@ -546,6 +716,13 @@
           "Deep wound",
           "Trauma or accident"
         ]
+      },
+      "id": {
+        "response": "Tekan luka dengan kuat secara langsung menggunakan kain atau kasa bersih untuk menghentikan pendarahan. Segera bawa pasien ke instalasi gawat darurat terdekat.",
+        "possible_conditions": [
+          "Luka dalam",
+          "Trauma atau kecelakaan"
+        ]
       }
     }
   },
@@ -556,7 +733,11 @@
       "পায়খানা হচ্ছে না",
       "constipation",
       "hard stool",
-      "difficulty passing stool"
+      "difficulty passing stool",
+      "sembelit",
+      "konstipasi",
+      "susah buang air besar",
+      "sulit buang air besar"
     ],
     "possible_conditions": [
       "আঁশযুক্ত খাবারের অভাব",
@@ -582,6 +763,14 @@
           "Low water intake",
           "Digestive issues"
         ]
+      },
+      "id": {
+        "response": "Minum banyak air dan makan makanan tinggi serat seperti sayuran untuk meredakan sembelit. Tetaplah aktif secara fisik. Konsultasikan ke dokter jika masalahnya berlangsung lama.",
+        "possible_conditions": [
+          "Kurang serat dalam makanan",
+          "Kurang minum air",
+          "Gangguan pencernaan"
+        ]
       }
     }
   },
@@ -593,7 +782,11 @@
       "চোখ চুলকানো",
       "conjunctivitis",
       "pink eye",
-      "red eyes"
+      "red eyes",
+      "mata merah",
+      "sakit mata",
+      "belekan",
+      "konjungtivitis"
     ],
     "possible_conditions": [
       "চোখের সংক্রমণ",
@@ -616,6 +809,13 @@
           "Eye infection",
           "Allergy"
         ]
+      },
+      "id": {
+        "response": "Mata merah (konjungtivitis) bisa menular. Hindari menyentuh mata dengan tangan yang belum dicuci, bilas dengan air bersih, dan gunakan handuk terpisah. Konsultasikan ke dokter mata jika penglihatan menjadi kabur.",
+        "possible_conditions": [
+          "Infeksi mata",
+          "Alergi"
+        ]
       }
     }
   },
@@ -627,7 +827,10 @@
       "fainting",
       "fainted",
       "loss of consciousness",
-      "passed out"
+      "passed out",
+      "pingsan",
+      "tidak sadarkan diri",
+      "kehilangan kesadaran"
     ],
     "possible_conditions": [
       "রক্তচাপ কমে যাওয়া",
@@ -653,6 +856,14 @@
           "Lack of oxygen to the brain",
           "Underlying medical emergency"
         ]
+      },
+      "id": {
+        "response": "Baringkan orang tersebut telentang dan angkat kakinya sedikit. Jika ia tidak segera sadar, segera cari bantuan medis darurat.",
+        "possible_conditions": [
+          "Tekanan darah rendah",
+          "Kurang oksigen ke otak",
+          "Kondisi darurat medis yang mendasari"
+        ]
       }
     }
   },
@@ -663,7 +874,12 @@
       "বারবার প্রস্রাব",
       "burning urination",
       "painful urination",
-      "UTI symptoms"
+      "UTI symptoms",
+      "nyeri saat buang air kecil",
+      "perih saat kencing",
+      "sakit saat kencing",
+      "anyang-anyangan",
+      "kencing perih"
     ],
     "possible_conditions": [
       "ইউরিনারি ট্র্যাক্ট ইনফেকশন (UTI)",
@@ -688,6 +904,13 @@
         "possible_conditions": [
           "Urinary Tract Infection (UTI)",
           "Dehydration"
+        ]
+      },
+      "id": {
+        "response": "Sensasi terbakar saat buang air kecil umumnya disebabkan oleh infeksi saluran kemih (ISK). Minum banyak air. Konsultasikan ke dokter jika gejala berlanjut atau disertai demam.",
+        "possible_conditions": [
+          "Infeksi saluran kemih (ISK)",
+          "Dehidrasi"
         ]
       }
     }

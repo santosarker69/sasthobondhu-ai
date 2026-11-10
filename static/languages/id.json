@@ -1,0 +1,19 @@
+{
+    "app_name": "SasthoBondhu AI",
+    "tagline": "Penasihat Kesehatan Berbasis AI Pertama Anda",
+    "version": "SasthoBondhu AI v1.0 Prototipe",
+    "welcome_title": "👋 Selamat datang!",
+    "welcome_text": "Ceritakan masalah kesehatan Anda dan dapatkan bantuan dari SasthoBondhu AI.",
+    "input_placeholder": "Ceritakan masalah Anda...",
+    "speak": "🎤 Bicara",
+    "send": "Kirim",
+    "patient": "👤 Pasien:",
+    "assistant": "🤖 SasthoBondhu:",
+    "hotline": "16263",
+    "future_updates": "Pembaruan Mendatang",
+    "hotline_alert": "Hotline AI Mendatang\n\nSaat ini sedang dalam proses",
+    "future_alert": "Pembaruan Mendatang\n\n1. Layanan Hotline AI\n2. Cakupan 64 distrik\n3. Integrasi ambulans\n4. Kemitraan dengan pemerintah",
+    "ask_name": "Pengguna yang terhormat, silakan sebutkan nama Anda?",
+    "welcome_patient": "Selamat datang {name}.\n\nSaya SasthoBondhu.\n\nSilakan ceritakan masalah kesehatan Anda.",
+    "ask_location": "{name}, masalah Anda sudah dicatat.\n\nAnda tinggal di mana?"
+}

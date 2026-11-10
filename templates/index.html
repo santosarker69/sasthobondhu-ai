@@ -248,6 +248,7 @@
                 <option value="bn" {% if language == "bn" %}selected{% endif %}>🇧🇩 বাংলা</option>
                 <option value="en" {% if language == "en" %}selected{% endif %}>🇬🇧 English</option>
                 <option value="fr" {% if language == "fr" %}selected{% endif %}>🇫🇷 Français</option>
+                <option value="id" {% if language == "id" %}selected{% endif %}>🇮🇩 Bahasa Indonesia</option>
             </select>
         </div>
         <div class="header-center">
@@ -339,6 +340,8 @@ function startListening() {
         recognition.lang = "en-IN";
     } else if (selectedLang === "fr") {
         recognition.lang = "fr-FR";
+    } else if (selectedLang === "id") {
+        recognition.lang = "id-ID";
     } else {
         recognition.lang = "bn-BD";
     }

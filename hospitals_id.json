@@ -1,0 +1,728 @@
+[
+  {
+    "district": "Denpasar",
+    "aliases": [
+      "sanur",
+      "sanglah",
+      "renon",
+      "kesiman",
+      "panjer",
+      "bali"
+    ],
+    "name": "RSUP Prof. dr. I.G.N.G. Ngoerah",
+    "name_en": "RSUP Prof. dr. I.G.N.G. Ngoerah",
+    "name_id": "RSUP Prof. dr. I.G.N.G. Ngoerah",
+    "country": "ID",
+    "currency": "IDR",
+    "demo": true,
+    "beds": 29,
+    "ticket": {
+      "location": "নিচ তলার, টিকেট কাউন্টার",
+      "location_en": "Ground floor, ticket counter",
+      "location_id": "Loket tiket, lantai dasar",
+      "price": 20000
+    },
+    "tests": {
+      "CBC": {
+        "location": "৩ তলায়, ল্যাবরেটরি",
+        "location_en": "3rd floor, Laboratory",
+        "location_id": "Lantai 3, Laboratorium",
+        "price": 195000
+      },
+      "Blood Test": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "location_en": "1st floor, Laboratory",
+        "location_id": "Lantai 1, Laboratorium",
+        "price": 105000
+      },
+      "NS1 Antigen": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "location_en": "1st floor, Laboratory",
+        "location_id": "Lantai 1, Laboratorium",
+        "price": 390000
+      },
+      "Urine R/E": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "location_en": "1st floor, Laboratory",
+        "location_id": "Lantai 1, Laboratorium",
+        "price": 100000
+      },
+      "ECG": {
+        "location": "২ তলায়, ইসিজি রুম",
+        "location_en": "2nd floor, ECG room",
+        "location_id": "Lantai 2, Ruang EKG",
+        "price": 125000
+      },
+      "X-Ray": {
+        "location": "২ তলায়, এক্স-রে রুম",
+        "location_en": "2nd floor, X-Ray room",
+        "location_id": "Lantai 2, Ruang Rontgen",
+        "price": 135000
+      },
+      "CT Scan": {
+        "location": "৩ তলায়, রুম ৩০১",
+        "location_en": "3rd floor, Room 301",
+        "location_id": "Lantai 3, Ruang 301",
+        "price": 2080000
+      }
+    }
+  },
+  {
+    "district": "Badung",
+    "aliases": [
+      "kuta",
+      "seminyak",
+      "legian",
+      "canggu",
+      "jimbaran",
+      "nusa dua",
+      "uluwatu",
+      "mengwi",
+      "kapal"
+    ],
+    "name": "RSUD Mangusada",
+    "name_en": "RSUD Mangusada",
+    "name_id": "RSUD Mangusada",
+    "country": "ID",
+    "currency": "IDR",
+    "demo": true,
+    "beds": 28,
+    "ticket": {
+      "location": "নিচ তলার, টিকেট কাউন্টার",
+      "location_en": "Ground floor, ticket counter",
+      "location_id": "Loket tiket, lantai dasar",
+      "price": 45000
+    },
+    "tests": {
+      "CBC": {
+        "location": "৩ তলায়, ল্যাবরেটরি",
+        "location_en": "3rd floor, Laboratory",
+        "location_id": "Lantai 3, Laboratorium",
+        "price": 175000
+      },
+      "Blood Test": {
+        "location": "২ তলায়, ল্যাবরেটরি",
+        "location_en": "2nd floor, Laboratory",
+        "location_id": "Lantai 2, Laboratorium",
+        "price": 180000
+      },
+      "NS1 Antigen": {
+        "location": "২ তলায়, ল্যাবরেটরি",
+        "location_en": "2nd floor, Laboratory",
+        "location_id": "Lantai 2, Laboratorium",
+        "price": 365000
+      },
+      "Urine R/E": {
+        "location": "৩ তলায়, ল্যাবরেটরি",
+        "location_en": "3rd floor, Laboratory",
+        "location_id": "Lantai 3, Laboratorium",
+        "price": 70000
+      },
+      "ECG": {
+        "location": "৩ তলায়, ইসিজি রুম",
+        "location_en": "3rd floor, ECG room",
+        "location_id": "Lantai 3, Ruang EKG",
+        "price": 135000
+      },
+      "X-Ray": {
+        "location": "২ তলায়, এক্স-রে রুম",
+        "location_en": "2nd floor, X-Ray room",
+        "location_id": "Lantai 2, Ruang Rontgen",
+        "price": 225000
+      },
+      "CT Scan": {
+        "location": "৩ তলায়, রুম ৩০৫",
+        "location_en": "3rd floor, Room 305",
+        "location_id": "Lantai 3, Ruang 305",
+        "price": 2950000
+      },
+      "MRI": {
+        "location": "২ তলায়, রুম ২০৯",
+        "location_en": "2nd floor, Room 209",
+        "location_id": "Lantai 2, Ruang 209",
+        "price": 5565000
+      }
+    }
+  },
+  {
+    "district": "Gianyar",
+    "aliases": [
+      "ubud",
+      "sukawati",
+      "tegalalang"
+    ],
+    "name": "RSUD Sanjiwani Gianyar",
+    "name_en": "RSUD Sanjiwani Gianyar",
+    "name_id": "RSUD Sanjiwani Gianyar",
+    "country": "ID",
+    "currency": "IDR",
+    "demo": true,
+    "beds": 60,
+    "ticket": {
+      "location": "নিচ তলার, টিকেট কাউন্টার",
+      "location_en": "Ground floor, ticket counter",
+      "location_id": "Loket tiket, lantai dasar",
+      "price": 45000
+    },
+    "tests": {
+      "CBC": {
+        "location": "২ তলায়, ল্যাবরেটরি",
+        "location_en": "2nd floor, Laboratory",
+        "location_id": "Lantai 2, Laboratorium",
+        "price": 180000
+      },
+      "Blood Test": {
+        "location": "২ তলায়, ল্যাবরেটরি",
+        "location_en": "2nd floor, Laboratory",
+        "location_id": "Lantai 2, Laboratorium",
+        "price": 140000
+      },
+      "NS1 Antigen": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "location_en": "1st floor, Laboratory",
+        "location_id": "Lantai 1, Laboratorium",
+        "price": 380000
+      },
+      "Urine R/E": {
+        "location": "৩ তলায়, ল্যাবরেটরি",
+        "location_en": "3rd floor, Laboratory",
+        "location_id": "Lantai 3, Laboratorium",
+        "price": 65000
+      },
+      "Urine Culture": {
+        "location": "৩ তলায়, ল্যাবরেটরি",
+        "location_en": "3rd floor, Laboratory",
+        "location_id": "Lantai 3, Laboratorium",
+        "price": 240000
+      },
+      "ECG": {
+        "location": "১ তলায়, ইসিজি রুম",
+        "location_en": "1st floor, ECG room",
+        "location_id": "Lantai 1, Ruang EKG",
+        "price": 210000
+      },
+      "X-Ray": {
+        "location": "২ তলায়, এক্স-রে রুম",
+        "location_en": "2nd floor, X-Ray room",
+        "location_id": "Lantai 2, Ruang Rontgen",
+        "price": 135000
+      },
+      "MRI": {
+        "location": "১ তলায়, রুম ১০৭",
+        "location_en": "1st floor, Room 107",
+        "location_id": "Lantai 1, Ruang 107",
+        "price": 5730000
+      }
+    }
+  },
+  {
+    "district": "Tabanan",
+    "aliases": [
+      "tanah lot",
+      "kediri"
+    ],
+    "name": "RSUD Tabanan",
+    "name_en": "RSUD Tabanan",
+    "name_id": "RSUD Tabanan",
+    "country": "ID",
+    "currency": "IDR",
+    "demo": true,
+    "beds": 33,
+    "ticket": {
+      "location": "নিচ তলার, টিকেট কাউন্টার",
+      "location_en": "Ground floor, ticket counter",
+      "location_id": "Loket tiket, lantai dasar",
+      "price": 20000
+    },
+    "tests": {
+      "CBC": {
+        "location": "২ তলায়, ল্যাবরেটরি",
+        "location_en": "2nd floor, Laboratory",
+        "location_id": "Lantai 2, Laboratorium",
+        "price": 185000
+      },
+      "Blood Test": {
+        "location": "২ তলায়, ল্যাবরেটরি",
+        "location_en": "2nd floor, Laboratory",
+        "location_id": "Lantai 2, Laboratorium",
+        "price": 110000
+      },
+      "NS1 Antigen": {
+        "location": "৩ তলায়, ল্যাবরেটরি",
+        "location_en": "3rd floor, Laboratory",
+        "location_id": "Lantai 3, Laboratorium",
+        "price": 360000
+      },
+      "Urine R/E": {
+        "location": "৩ তলায়, ল্যাবরেটরি",
+        "location_en": "3rd floor, Laboratory",
+        "location_id": "Lantai 3, Laboratorium",
+        "price": 105000
+      },
+      "Urine Culture": {
+        "location": "২ তলায়, ল্যাবরেটরি",
+        "location_en": "2nd floor, Laboratory",
+        "location_id": "Lantai 2, Laboratorium",
+        "price": 270000
+      },
+      "ECG": {
+        "location": "১ তলায়, ইসিজি রুম",
+        "location_en": "1st floor, ECG room",
+        "location_id": "Lantai 1, Ruang EKG",
+        "price": 210000
+      },
+      "X-Ray": {
+        "location": "৩ তলায়, এক্স-রে রুম",
+        "location_en": "3rd floor, X-Ray room",
+        "location_id": "Lantai 3, Ruang Rontgen",
+        "price": 170000
+      },
+      "CT Scan": {
+        "location": "৩ তলায়, রুম ৩০৩",
+        "location_en": "3rd floor, Room 303",
+        "location_id": "Lantai 3, Ruang 303",
+        "price": 2975000
+      },
+      "MRI": {
+        "location": "৩ তলায়, রুম ৩০৪",
+        "location_en": "3rd floor, Room 304",
+        "location_id": "Lantai 3, Ruang 304",
+        "price": 5080000
+      }
+    }
+  },
+  {
+    "district": "Buleleng",
+    "aliases": [
+      "singaraja",
+      "lovina"
+    ],
+    "name": "RSUD Buleleng",
+    "name_en": "RSUD Buleleng",
+    "name_id": "RSUD Buleleng",
+    "country": "ID",
+    "currency": "IDR",
+    "demo": true,
+    "beds": 46,
+    "ticket": {
+      "location": "নিচ তলার, টিকেট কাউন্টার",
+      "location_en": "Ground floor, ticket counter",
+      "location_id": "Loket tiket, lantai dasar",
+      "price": 35000
+    },
+    "tests": {
+      "CBC": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "location_en": "1st floor, Laboratory",
+        "location_id": "Lantai 1, Laboratorium",
+        "price": 190000
+      },
+      "Blood Test": {
+        "location": "৩ তলায়, ল্যাবরেটরি",
+        "location_en": "3rd floor, Laboratory",
+        "location_id": "Lantai 3, Laboratorium",
+        "price": 105000
+      },
+      "NS1 Antigen": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "location_en": "1st floor, Laboratory",
+        "location_id": "Lantai 1, Laboratorium",
+        "price": 295000
+      },
+      "Urine R/E": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "location_en": "1st floor, Laboratory",
+        "location_id": "Lantai 1, Laboratorium",
+        "price": 80000
+      },
+      "Urine Culture": {
+        "location": "৩ তলায়, ল্যাবরেটরি",
+        "location_en": "3rd floor, Laboratory",
+        "location_id": "Lantai 3, Laboratorium",
+        "price": 190000
+      },
+      "ECG": {
+        "location": "২ তলায়, ইসিজি রুম",
+        "location_en": "2nd floor, ECG room",
+        "location_id": "Lantai 2, Ruang EKG",
+        "price": 230000
+      },
+      "X-Ray": {
+        "location": "২ তলায়, এক্স-রে রুম",
+        "location_en": "2nd floor, X-Ray room",
+        "location_id": "Lantai 2, Ruang Rontgen",
+        "price": 205000
+      },
+      "CT Scan": {
+        "location": "১ তলায়, রুম ১০৯",
+        "location_en": "1st floor, Room 109",
+        "location_id": "Lantai 1, Ruang 109",
+        "price": 1505000
+      },
+      "MRI": {
+        "location": "১ তলায়, রুম ১০৫",
+        "location_en": "1st floor, Room 105",
+        "location_id": "Lantai 1, Ruang 105",
+        "price": 3510000
+      }
+    }
+  },
+  {
+    "district": "Jakarta",
+    "aliases": [
+      "dki jakarta",
+      "jakarta pusat",
+      "jakarta selatan",
+      "jakarta barat",
+      "jakarta utara",
+      "jakarta timur"
+    ],
+    "name": "RSCM Jakarta",
+    "name_en": "RSCM Jakarta",
+    "name_id": "RSCM Jakarta",
+    "country": "ID",
+    "currency": "IDR",
+    "demo": true,
+    "beds": 33,
+    "ticket": {
+      "location": "নিচ তলার, টিকেট কাউন্টার",
+      "location_en": "Ground floor, ticket counter",
+      "location_id": "Loket tiket, lantai dasar",
+      "price": 30000
+    },
+    "tests": {
+      "CBC": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "location_en": "1st floor, Laboratory",
+        "location_id": "Lantai 1, Laboratorium",
+        "price": 165000
+      },
+      "Blood Test": {
+        "location": "৩ তলায়, ল্যাবরেটরি",
+        "location_en": "3rd floor, Laboratory",
+        "location_id": "Lantai 3, Laboratorium",
+        "price": 160000
+      },
+      "NS1 Antigen": {
+        "location": "৩ তলায়, ল্যাবরেটরি",
+        "location_en": "3rd floor, Laboratory",
+        "location_id": "Lantai 3, Laboratorium",
+        "price": 375000
+      },
+      "Urine R/E": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "location_en": "1st floor, Laboratory",
+        "location_id": "Lantai 1, Laboratorium",
+        "price": 95000
+      },
+      "ECG": {
+        "location": "১ তলায়, ইসিজি রুম",
+        "location_en": "1st floor, ECG room",
+        "location_id": "Lantai 1, Ruang EKG",
+        "price": 160000
+      },
+      "X-Ray": {
+        "location": "১ তলায়, এক্স-রে রুম",
+        "location_en": "1st floor, X-Ray room",
+        "location_id": "Lantai 1, Ruang Rontgen",
+        "price": 170000
+      },
+      "CT Scan": {
+        "location": "৩ তলায়, রুম ৩০৩",
+        "location_en": "3rd floor, Room 303",
+        "location_id": "Lantai 3, Ruang 303",
+        "price": 1805000
+      },
+      "MRI": {
+        "location": "২ তলায়, রুম ২০৭",
+        "location_en": "2nd floor, Room 207",
+        "location_id": "Lantai 2, Ruang 207",
+        "price": 5870000
+      }
+    }
+  },
+  {
+    "district": "Surabaya",
+    "aliases": [],
+    "name": "RSUD Dr. Soetomo",
+    "name_en": "RSUD Dr. Soetomo",
+    "name_id": "RSUD Dr. Soetomo",
+    "country": "ID",
+    "currency": "IDR",
+    "demo": true,
+    "beds": 38,
+    "ticket": {
+      "location": "নিচ তলার, টিকেট কাউন্টার",
+      "location_en": "Ground floor, ticket counter",
+      "location_id": "Loket tiket, lantai dasar",
+      "price": 50000
+    },
+    "tests": {
+      "CBC": {
+        "location": "২ তলায়, ল্যাবরেটরি",
+        "location_en": "2nd floor, Laboratory",
+        "location_id": "Lantai 2, Laboratorium",
+        "price": 155000
+      },
+      "Blood Test": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "location_en": "1st floor, Laboratory",
+        "location_id": "Lantai 1, Laboratorium",
+        "price": 130000
+      },
+      "NS1 Antigen": {
+        "location": "২ তলায়, ল্যাবরেটরি",
+        "location_en": "2nd floor, Laboratory",
+        "location_id": "Lantai 2, Laboratorium",
+        "price": 370000
+      },
+      "Urine R/E": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "location_en": "1st floor, Laboratory",
+        "location_id": "Lantai 1, Laboratorium",
+        "price": 55000
+      },
+      "Urine Culture": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "location_en": "1st floor, Laboratory",
+        "location_id": "Lantai 1, Laboratorium",
+        "price": 180000
+      },
+      "ECG": {
+        "location": "৩ তলায়, ইসিজি রুম",
+        "location_en": "3rd floor, ECG room",
+        "location_id": "Lantai 3, Ruang EKG",
+        "price": 220000
+      },
+      "X-Ray": {
+        "location": "২ তলায়, এক্স-রে রুম",
+        "location_en": "2nd floor, X-Ray room",
+        "location_id": "Lantai 2, Ruang Rontgen",
+        "price": 145000
+      },
+      "CT Scan": {
+        "location": "২ তলায়, রুম ২০৮",
+        "location_en": "2nd floor, Room 208",
+        "location_id": "Lantai 2, Ruang 208",
+        "price": 2665000
+      },
+      "MRI": {
+        "location": "২ তলায়, রুম ২০৬",
+        "location_en": "2nd floor, Room 206",
+        "location_id": "Lantai 2, Ruang 206",
+        "price": 3255000
+      }
+    }
+  },
+  {
+    "district": "Bandung",
+    "aliases": [],
+    "name": "RSUP Dr. Hasan Sadikin",
+    "name_en": "RSUP Dr. Hasan Sadikin",
+    "name_id": "RSUP Dr. Hasan Sadikin",
+    "country": "ID",
+    "currency": "IDR",
+    "demo": true,
+    "beds": 28,
+    "ticket": {
+      "location": "নিচ তলার, টিকেট কাউন্টার",
+      "location_en": "Ground floor, ticket counter",
+      "location_id": "Loket tiket, lantai dasar",
+      "price": 20000
+    },
+    "tests": {
+      "CBC": {
+        "location": "২ তলায়, ল্যাবরেটরি",
+        "location_en": "2nd floor, Laboratory",
+        "location_id": "Lantai 2, Laboratorium",
+        "price": 180000
+      },
+      "Blood Test": {
+        "location": "২ তলায়, ল্যাবরেটরি",
+        "location_en": "2nd floor, Laboratory",
+        "location_id": "Lantai 2, Laboratorium",
+        "price": 130000
+      },
+      "NS1 Antigen": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "location_en": "1st floor, Laboratory",
+        "location_id": "Lantai 1, Laboratorium",
+        "price": 340000
+      },
+      "Urine R/E": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "location_en": "1st floor, Laboratory",
+        "location_id": "Lantai 1, Laboratorium",
+        "price": 55000
+      },
+      "Urine Culture": {
+        "location": "২ তলায়, ল্যাবরেটরি",
+        "location_en": "2nd floor, Laboratory",
+        "location_id": "Lantai 2, Laboratorium",
+        "price": 310000
+      },
+      "ECG": {
+        "location": "২ তলায়, ইসিজি রুম",
+        "location_en": "2nd floor, ECG room",
+        "location_id": "Lantai 2, Ruang EKG",
+        "price": 195000
+      },
+      "CT Scan": {
+        "location": "৩ তলায়, রুম ৩০৭",
+        "location_en": "3rd floor, Room 307",
+        "location_id": "Lantai 3, Ruang 307",
+        "price": 1590000
+      },
+      "MRI": {
+        "location": "২ তলায়, রুম ২০৯",
+        "location_en": "2nd floor, Room 209",
+        "location_id": "Lantai 2, Ruang 209",
+        "price": 4240000
+      }
+    }
+  },
+  {
+    "district": "Yogyakarta",
+    "aliases": [
+      "jogja",
+      "jogjakarta",
+      "sleman"
+    ],
+    "name": "RSUP Dr. Sardjito",
+    "name_en": "RSUP Dr. Sardjito",
+    "name_id": "RSUP Dr. Sardjito",
+    "country": "ID",
+    "currency": "IDR",
+    "demo": true,
+    "beds": 23,
+    "ticket": {
+      "location": "নিচ তলার, টিকেট কাউন্টার",
+      "location_en": "Ground floor, ticket counter",
+      "location_id": "Loket tiket, lantai dasar",
+      "price": 20000
+    },
+    "tests": {
+      "CBC": {
+        "location": "২ তলায়, ল্যাবরেটরি",
+        "location_en": "2nd floor, Laboratory",
+        "location_id": "Lantai 2, Laboratorium",
+        "price": 150000
+      },
+      "Blood Test": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "location_en": "1st floor, Laboratory",
+        "location_id": "Lantai 1, Laboratorium",
+        "price": 135000
+      },
+      "Urine R/E": {
+        "location": "২ তলায়, ল্যাবরেটরি",
+        "location_en": "2nd floor, Laboratory",
+        "location_id": "Lantai 2, Laboratorium",
+        "price": 105000
+      },
+      "Urine Culture": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "location_en": "1st floor, Laboratory",
+        "location_id": "Lantai 1, Laboratorium",
+        "price": 190000
+      },
+      "ECG": {
+        "location": "৩ তলায়, ইসিজি রুম",
+        "location_en": "3rd floor, ECG room",
+        "location_id": "Lantai 3, Ruang EKG",
+        "price": 150000
+      },
+      "X-Ray": {
+        "location": "৩ তলায়, এক্স-রে রুম",
+        "location_en": "3rd floor, X-Ray room",
+        "location_id": "Lantai 3, Ruang Rontgen",
+        "price": 230000
+      },
+      "CT Scan": {
+        "location": "১ তলায়, রুম ১০৯",
+        "location_en": "1st floor, Room 109",
+        "location_id": "Lantai 1, Ruang 109",
+        "price": 2425000
+      },
+      "MRI": {
+        "location": "১ তলায়, রুম ১০৭",
+        "location_en": "1st floor, Room 107",
+        "location_id": "Lantai 1, Ruang 107",
+        "price": 5605000
+      }
+    }
+  },
+  {
+    "district": "Medan",
+    "aliases": [],
+    "name": "RSUP H. Adam Malik",
+    "name_en": "RSUP H. Adam Malik",
+    "name_id": "RSUP H. Adam Malik",
+    "country": "ID",
+    "currency": "IDR",
+    "demo": true,
+    "beds": 38,
+    "ticket": {
+      "location": "নিচ তলার, টিকেট কাউন্টার",
+      "location_en": "Ground floor, ticket counter",
+      "location_id": "Loket tiket, lantai dasar",
+      "price": 20000
+    },
+    "tests": {
+      "CBC": {
+        "location": "২ তলায়, ল্যাবরেটরি",
+        "location_en": "2nd floor, Laboratory",
+        "location_id": "Lantai 2, Laboratorium",
+        "price": 135000
+      },
+      "Blood Test": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "location_en": "1st floor, Laboratory",
+        "location_id": "Lantai 1, Laboratorium",
+        "price": 140000
+      },
+      "NS1 Antigen": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "location_en": "1st floor, Laboratory",
+        "location_id": "Lantai 1, Laboratorium",
+        "price": 260000
+      },
+      "Urine R/E": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "location_en": "1st floor, Laboratory",
+        "location_id": "Lantai 1, Laboratorium",
+        "price": 100000
+      },
+      "Urine Culture": {
+        "location": "১ তলায়, ল্যাবরেটরি",
+        "location_en": "1st floor, Laboratory",
+        "location_id": "Lantai 1, Laboratorium",
+        "price": 210000
+      },
+      "ECG": {
+        "location": "৩ তলায়, ইসিজি রুম",
+        "location_en": "3rd floor, ECG room",
+        "location_id": "Lantai 3, Ruang EKG",
+        "price": 215000
+      },
+      "X-Ray": {
+        "location": "২ তলায়, এক্স-রে রুম",
+        "location_en": "2nd floor, X-Ray room",
+        "location_id": "Lantai 2, Ruang Rontgen",
+        "price": 235000
+      },
+      "CT Scan": {
+        "location": "১ তলায়, রুম ১০৬",
+        "location_en": "1st floor, Room 106",
+        "location_id": "Lantai 1, Ruang 106",
+        "price": 2815000
+      },
+      "MRI": {
+        "location": "২ তলায়, রুম ২০৩",
+        "location_en": "2nd floor, Room 203",
+        "location_id": "Lantai 2, Ruang 203",
+        "price": 5610000
+      }
+    }
+  }
+]

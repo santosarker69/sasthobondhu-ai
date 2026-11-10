@@ -1,10 +1,18 @@
 from flask import Flask, render_template, request, jsonify, session
 import json
+from google.genai import types
 from gtts import gTTS
 import speech_recognition as sr
 from pydub import AudioSegment
 import os
 from dotenv import load_dotenv
+import re
+from i18n import (
+    SUPPORTED_LANGUAGES, SHOW_DEMO_NOTE, norm_lang, m,
+    GREETING_WORDS, BANGLA_GREETINGS, NAME_PREFIXES, TEST_WORDS,
+    NEXT_WORDS, ADMISSION_WORDS, YES_WORDS,
+    format_price, hospital_name, ticket_location, test_location
+)
 load_dotenv()
 _gemini_client = None
 
@@ -126,6 +134,382 @@ def get_disease_data_with_gemini(user_message):
     return gemini_semantic_match(user_message)
 
 
+def gemini_detect_blood_intent(user_message):
+    client = get_gemini_client()
+
+    if not client:
+        return None
+
+    prompt = f"""
+    Analyze the user's message and identify whether they need blood.
+
+    Return JSON only:
+    {{
+        "needs_blood": true or false,
+        "blood_group": "A+" or "A-" or "B+" or "B-" or
+                       "AB+" or "AB-" or "O+" or "O-" or null
+    }}
+
+    Rules:
+    - Understand both Bangla and English.
+    - Understand indirect expressions of needing blood.
+    - Do not assume a blood group if it is not mentioned.
+    - Do not classify general questions about blood as blood requests.
+
+    User message: {user_message}
+    """
+
+    try:
+        response = client.models.generate_content(
+            model="gemini-3.5-flash-lite",
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+                temperature=0
+            )
+        )
+
+        result = json.loads(response.text)
+
+        if not isinstance(result, dict):
+            return None
+
+        return result
+
+    except Exception as e:
+        print("Blood intent detection failed:", e)
+        return None
+
+
+# =====================================================================
+# GEMINI TURN INTERPRETER  (used by the home "/" route only)
+# Gemini only UNDERSTANDS the user's message. It never writes a reply.
+# All reply text still comes from our own templates / JSON data.
+# If Gemini is unavailable, every call returns None and home() falls
+# back to the old rule-based logic.
+# =====================================================================
+
+VALID_BLOOD_GROUPS = {"A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"}
+
+TURN_INTENTS = [
+    "greeting", "give_name", "describe_problem", "blood_request",
+    "give_blood_group", "give_place", "ask_test", "ask_next",
+    "ask_admission", "confirm_yes", "other"
+]
+
+STEP_HINTS = {
+    "": "The conversation has not started yet.",
+    "name": "The assistant just asked the user for their name.",
+    "problem": "The assistant just asked the user to describe their health problem.",
+    "blood_group": "The assistant just asked which blood group is needed.",
+    "blood_location": "The assistant just asked in which area/location the blood is needed.",
+    "location": "The assistant just asked where the user lives (area or district).",
+    "post_hospital": "The assistant just gave hospital and ticket information. The user may ask about tests.",
+    "test": "The assistant just gave test information. The user may ask what to do after the tests or about the report.",
+    "report": "The assistant just explained the report. The user may ask about admission or what to do next.",
+    "admission": "The assistant just talked about admission. The user may confirm or ask something else."
+}
+
+
+def gemini_interpret_turn(original_message, normalized_message, step, language):
+    """
+    ONE Gemini call per user turn. Returns a validated dict:
+      {"intent": str, "name": str|None, "disease_keys": [str],
+       "blood_group": str|None, "place": str|None}
+    or None if Gemini is not available / failed (caller then uses old logic).
+    """
+    client = get_gemini_client()
+    if client is None:
+        return None
+
+    compact_db = {
+        key: info.get("keywords", [])[:12]
+        for key, info in disease_data.items()
+    }
+    places = _known_places()
+    step_hint = STEP_HINTS.get(step, "The assistant is waiting for the user's next message.")
+
+    prompt = """
+You are the language-understanding layer of SasthoBondhu AI, a health navigator
+that talks to a patient like a 1:1 phone call.
+
+You ONLY understand the user's message. You NEVER write a reply, NEVER diagnose,
+NEVER give medical advice.
+
+The user may write Bangla, English, French, Indonesian (Bahasa Indonesia), or Bangla
+written in English letters (Banglish). Messages may contain spelling mistakes, missing words, slang, regional
+dialect, speech-to-text errors or very short fragments. Understand the MEANING
+even if one or two words are wrong or missing.
+
+Conversation state: __STEP_HINT__
+
+Choose exactly one intent:
+- greeting: only greets or calls the assistant (hi, hello, hlw, helo, halo, hai, selamat pagi, assalamu alaikum,
+  হ্যালো, স্বাস্থ্যবন্ধু ...) with no health problem and no name.
+- give_name: the user tells their name (also if they only type the name).
+- describe_problem: the user describes any symptom or health problem.
+- blood_request: the user needs blood or a blood donor (directly or indirectly).
+- give_blood_group: the user only states a blood group.
+- give_place: the user only states a place (area, district, city, upazila).
+- ask_test: the user asks about tests / investigations / where to do tests.
+- ask_next: the user says tests are done, asks about the report, or asks what to do next.
+- ask_admission: the user asks about admission / being admitted / the doctor said admit.
+- confirm_yes: the user agrees (yes, ha, ji, haan, ya, iya, oke, ok, thik ache ...).
+- other: anything else.
+
+Also extract (use null / empty when absent):
+- name: the person's name exactly as written, without filler such as
+  "my name is" / "আমার নাম" / "ami". Return null if the message is not a name.
+  The name must come from ORIGINAL message, never invented.
+- disease_keys: list of keys chosen ONLY from the disease database below that are
+  reasonably consistent with the described symptoms. Never invent a key. [] if none.
+- blood_group: one of A+, A-, B+, B-, AB+, AB-, O+, O- (understand "o positive",
+  "ও পজিটিভ", "b negetive" ...). null if not stated. Never guess.
+- place: if the user mentions a place, return the best match from the known places
+  list below (fix spelling, translate Bangla/Banglish to the English name in the list).
+  If it is clearly a place but not in the list, return it as written. null if no place.
+
+Return JSON only, exactly in this shape:
+{"intent": "...", "name": null, "disease_keys": [], "blood_group": null, "place": null}
+
+ORIGINAL message: __ORIGINAL__
+Normalized message (regional words replaced): __NORMALIZED__
+
+Known places: __PLACES__
+
+Disease database (key: keywords): __DB__
+"""
+    prompt = (
+        prompt
+        .replace("__STEP_HINT__", step_hint)
+        .replace("__ORIGINAL__", json.dumps(original_message, ensure_ascii=False))
+        .replace("__NORMALIZED__", json.dumps(normalized_message, ensure_ascii=False))
+        .replace("__PLACES__", json.dumps(places, ensure_ascii=False))
+        .replace("__DB__", json.dumps(compact_db, ensure_ascii=False))
+    )
+
+    try:
+        response = client.models.generate_content(
+            model="gemini-3.5-flash-lite",
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+                temperature=0
+            )
+        )
+        raw = json.loads(response.text)
+        return _clean_interpretation(raw)
+
+    except Exception as e:
+        print("Gemini turn interpretation failed:", type(e).__name__, e)
+        return None
+
+
+def _clean_interpretation(raw):
+    """Validate everything Gemini returned. Never trust it blindly."""
+    if not isinstance(raw, dict):
+        return None
+
+    intent = raw.get("intent")
+    if intent not in TURN_INTENTS:
+        intent = "other"
+
+    # name
+    name = raw.get("name")
+    if isinstance(name, str):
+        name = name.strip(" .,!?:;\"'")
+        if not name or len(name) > 40 or len(name.split()) > 4:
+            name = None
+    else:
+        name = None
+
+    # diseases: only real keys from disease_data.json
+    keys = raw.get("disease_keys")
+    if not isinstance(keys, list):
+        keys = []
+    keys = [k for k in keys if isinstance(k, str) and k in disease_data]
+
+    # blood group
+    blood_group = raw.get("blood_group")
+    if isinstance(blood_group, str):
+        blood_group = blood_group.replace(" ", "").upper()
+        if blood_group not in VALID_BLOOD_GROUPS:
+            blood_group = None
+    else:
+        blood_group = None
+
+    # place
+    place = raw.get("place")
+    if isinstance(place, str):
+        place = place.strip()
+        if not place or len(place) > 60:
+            place = None
+        else:
+            for known in _known_places():
+                if known.lower() == place.lower():
+                    place = known
+                    break
+    else:
+        place = None
+
+    return {
+        "intent": intent,
+        "name": name,
+        "disease_keys": keys,
+        "blood_group": blood_group,
+        "place": place
+    }
+
+
+def resolve_diseases(interp, user_message):
+    """Gemini's disease keys first; local keyword match as safety net."""
+    if interp is None:
+        return get_disease_data_with_gemini(user_message)
+
+    keys = interp.get("disease_keys") or []
+    if keys:
+        return [(k, disease_data[k]) for k in keys]
+
+    return get_disease_data(user_message)
+
+
+
+
+# =====================================================================
+# HOSPITAL / PLACE / REPLY HELPERS  (home "/" route)
+# =====================================================================
+
+def _known_places():
+    """Places Gemini may return: hospital districts, their area aliases, donor areas."""
+    places = set()
+    for h in ALL_HOSPITALS:
+        places.add(h["district"])
+        for alias in h.get("aliases", []):
+            places.add(alias.title())
+    for d in blood_donors:
+        if d.get("district"):
+            places.add(d["district"])
+        if d.get("area"):
+            places.add(d["area"])
+    return sorted(places)
+
+
+def resolve_hospital(text):
+    """
+    Find the hospital for a typed / extracted place (Bangla or English or Indonesian).
+    Works for districts, area aliases (Sanur, Kuta, Ubud ...) and donor areas.
+    Returns the hospital dict or None.
+    """
+    if not text:
+        return None
+
+    t = str(text).lower().strip()
+
+    # Bangla names -> English district
+    english = None
+    for bangla, eng in district_map.items():
+        if str(bangla).strip().lower() in t:
+            english = str(eng).lower()
+            break
+
+    if english:
+        for h in ALL_HOSPITALS:
+            if h["district"].strip().lower() == english:
+                return h
+
+    # district name or alias written in the text
+    for h in ALL_HOSPITALS:
+        names = [h["district"].strip().lower()]
+        names += [a.strip().lower() for a in h.get("aliases", [])]
+        if any(n and n in t for n in names):
+            return h
+
+    # area known from donor data (Chashara, Mirpur ...) -> its district
+    for d in blood_donors:
+        area = str(d.get("area", "")).strip().lower()
+        if area and area in t:
+            district = str(d.get("district", "")).strip().lower()
+            for h in ALL_HOSPITALS:
+                if h["district"].strip().lower() == district:
+                    return h
+
+    return None
+
+
+def disease_answer_lines(disease_info, language):
+    """Advice + possible causes + tests for ONE disease, in the patient's language."""
+    lang = norm_lang(language)
+    lines = []
+
+    response = get_localized_disease_text(disease_info, lang, "response")
+    if response:
+        lines.append(response)
+
+    possible = get_localized_disease_text(disease_info, lang, "possible_conditions")
+    if possible:
+        lines.append(m(lang, "may_be_caused", items=", ".join(possible)))
+
+    tests = disease_info.get("tests", [])
+    if tests:
+        lines.append(m(lang, "doctor_may_recommend", items=", ".join(tests)))
+
+    return lines
+
+
+def hospital_info_text(hospital, language):
+    text = m(
+        language,
+        "hospital_info",
+        hospital=hospital_name(hospital, language),
+        ticket_location=ticket_location(hospital, language),
+        price=format_price(hospital.get("ticket", {}).get("price"), hospital, language)
+    )
+    if SHOW_DEMO_NOTE and hospital.get("demo"):
+        text += "\n\n" + m(language, "demo_note")
+    return text
+
+
+def begin_blood_flow(blood_group, language):
+    """Start the blood-donor flow from ANY point of the conversation."""
+    user_data["mode"] = "blood"
+    user_data["blood_group"] = blood_group
+
+    if not blood_group:
+        user_data["step"] = "blood_group"
+        return m(language, "blood_need_group")
+
+    user_data["step"] = "blood_location"
+    return m(language, "blood_ask_location", group=blood_group)
+
+
+def build_additional_problem_reply(new_keys, language):
+    """Answer for a NEW disease mentioned after the first answer was given."""
+    lines = []
+
+    for disease_key in new_keys:
+        disease_info = disease_data.get(disease_key)
+        if disease_info:
+            lines += disease_answer_lines(disease_info, language)
+
+    hospital = user_data.get("hospital_data")
+    if hospital:
+        lines.append(m(language, "same_hospital_note", hospital=hospital_name(hospital, language)))
+
+    return "\n".join(lines)
+
+
+def render_chat(reply, original_message, language):
+    """Shared tail: audio + chat history + render."""
+    audio_file = create_audio(reply, language)
+    chat_history.append({"user": original_message, "ai": reply})
+    return render_template(
+        "index.html",
+        chat_history=chat_history,
+        language=language,
+        audio_file=audio_file
+    )
+
+
 chat_history = []
 user_data = {
     "active": False,
@@ -215,6 +599,81 @@ with open("hospitals.json", "r",encoding="utf-8") as file:
     hospitals = json.load(file)
 with open("data/disease_data.json", "r", encoding="utf-8") as file:
     disease_data = json.load(file)
+
+# Indonesian demo hospitals. Kept in a separate file (not hospitals.json) so the
+# /voice route, which only knows Bangladesh hospitals, is not affected.
+try:
+    with open("hospitals_id.json", "r", encoding="utf-8") as file:
+        hospitals_id = json.load(file)
+except FileNotFoundError:
+    hospitals_id = []
+
+# Everything the home "/" route can use
+ALL_HOSPITALS = hospitals + hospitals_id
+
+
+# =========================
+# BLOOD DONOR DATABASE
+# =========================
+
+with open("data/blood_donors.json", "r", encoding="utf-8") as file:
+    blood_donors = json.load(file)
+
+# Indonesian (Bali) demo donors
+try:
+    with open("data/blood_donors_id.json", "r", encoding="utf-8") as file:
+        blood_donors.extend(json.load(file))
+except FileNotFoundError:
+    pass
+
+
+
+def search_blood_donors(blood_group, location):
+    import re
+
+    blood_group = re.sub(r"\s+", "", str(blood_group)).upper()
+    location = str(location).strip().casefold()
+
+    normalized_location = location.replace("য়", "য়")
+
+    for bangla, english in district_map.items():
+        bangla_name = str(bangla).strip().casefold().replace("য়", "য়")
+
+        if bangla_name in normalized_location:
+            normalized_location = str(english).strip().casefold()
+            break
+
+    matched_donors = []
+
+    for donor in blood_donors:
+
+        if not donor.get("available", False):
+            continue
+
+        if not donor.get("verified", False):
+            continue
+
+        donor_group = re.sub(
+            r"\s+", "", str(donor.get("blood_group", ""))
+        ).upper()
+
+        if donor_group != blood_group:
+            continue
+
+        district = str(donor.get("district", "")).strip().casefold()
+        area = str(donor.get("area", "")).strip().casefold()
+
+        if (
+            normalized_location not in district
+            and normalized_location not in area
+        ):
+            continue
+
+        matched_donors.append(donor)
+
+    return matched_donors
+
+
 
 # =========================
 # INITIALIZE DISEASE STATS
@@ -538,7 +997,7 @@ def create_audio(reply, language="bn"):
         f"reply_{uuid.uuid4().hex}.mp3"
     )
 
-    tts_language = "en" if language == "en" else "bn"
+    tts_language = {"en": "en", "bn": "bn", "id": "id", "fr": "en"}.get(language, "bn")
 
     tts = gTTS(
         text=reply,
@@ -581,922 +1040,406 @@ def speech_to_text(audio_path):
 
 @app.route("/", methods=["GET", "POST"])
 def home():
-    reply = ""
-    hospital_name = ""
-    hospital_beds = ""
-    audio_file = None
-
-    # Saved language ব্যবহার করবে
+    """
+    Patient conversation. Flow (user_data["step"]):
+      name -> problem -> location -> post_hospital -> test -> report -> admission
+      (+ blood_group -> blood_location, and new diseases / blood any time after the first answer)
+    Gemini only UNDERSTANDS each message (gemini_interpret_turn). Every word the patient
+    reads comes from data files or i18n.py. If Gemini is down, the old keyword rules run.
+    """
     language = user_data.get("language", "bn")
 
-    if request.method == "POST":
-
-        user_message = request.form["message"]
-
-        # যদি form থেকে language আসে, সেটি save করবে
-        form_language = request.form.get("language")
-
-        if form_language in ["bn", "en", "fr"]:
-            language = form_language
-            session["language"] = language
-            user_data["language"] = language
-        else:
-            # না এলে আগের selected language ব্যবহার করবে
-            language = session.get("language", "bn")
-            user_data["language"] = language
-
-        print("Selected language:", language)
-
-        original_message = user_message
-        for local_word, normal_word in regional_words.items():
-
-            if local_word in user_message:
-
-                user_message = user_message.replace(
-                    local_word,
-                    normal_word
-                )
-        is_noakhali = False
-
-        for word in regional_words:
-
-            if word in original_message:
-
-                is_noakhali = True
-                break
-
-        import re
-
-        lower_message = user_message.lower().strip()
-
-        greeting_words = [
-            "hello",
-            "hi",
-            "hey",
-            "health",
-            "sasthobondhu",
-            "sastho bondhu",
-            "bonjour",
-            "salut"
-        ]
-
-        bangla_greetings = [
-            "হ্যালো",
-            "স্বাস্থ্যবন্ধু",
-            "স্বাস্থ্য বন্ধু",
-            "হ্যালো স্বাস্থ্যবন্ধু",
-            "হ্যালো স্বাস্থ্য বন্ধু"
-        ]
-
-        is_greeting = (
-            any(
-                re.search(rf"\b{re.escape(word)}\b", lower_message)
-                for word in greeting_words
-            )
-            or
-            any(word in lower_message for word in bangla_greetings)
+    if request.method != "POST":
+        return render_template(
+            "index.html",
+            reply="",
+            chat_history=chat_history,
+            audio_file=None,
+            language=language
         )
 
-        if is_greeting:
-            user_data["mode"] = "flow"      
-            user_data["active"] = True
-            user_data["step"] = "name"
+    user_message = request.form["message"]
 
-            reply = get_text(language, "ask_name")
-            audio_file = create_audio(reply, language)
+    form_language = request.form.get("language")
+    if form_language in SUPPORTED_LANGUAGES:
+        language = form_language
+    else:
+        language = session.get("language", "bn")
+    session["language"] = language
+    user_data["language"] = language
 
-            chat_history.append({
-                "user": original_message,
-                "ai": reply
-            })
+    print("Selected language:", language)
 
-            return render_template(
-                "index.html",
-                chat_history=chat_history,
-                language=language,
-                audio_file=audio_file
-            )
-        
-        if (
-            user_data["active"]
-            and user_data["step"] == "name"
-        ):
+    # Regional (Noakhali) words -> standard Bangla
+    original_message = user_message
+    for local_word, normal_word in regional_words.items():
+        if local_word in user_message:
+            user_message = user_message.replace(local_word, normal_word)
 
-            name_text = original_message.strip()
+    lower_message = user_message.lower().strip()
+    active = bool(user_data.get("active"))
+    step = user_data.get("step", "") if active else ""
 
-            # "My name is Shanto" → "Shanto"
-            name_prefixes = [
-                "my name is ",
-                "my name's ",
-                "i am ",
-                "i'm ",
-                "this is ",
-                "আমার নাম ",
-                "আমি "
-            ]
+    # ONE Gemini call per turn (None => old rule-based logic below)
+    interp = gemini_interpret_turn(original_message, user_message, step, language)
 
-            for prefix in name_prefixes:
+    # ------------------------------------------------------------ greeting
+    if interp is not None:
+        is_greeting = (interp["intent"] == "greeting")
+    else:
+        is_greeting = (
+            any(re.search(rf"\b{re.escape(w)}\b", lower_message) for w in GREETING_WORDS)
+            or any(w in lower_message for w in BANGLA_GREETINGS)
+        )
+
+    if is_greeting:
+        # a greeting starts a NEW patient: forget the previous one
+        user_data["mode"] = "flow"
+        user_data["active"] = True
+        user_data["step"] = "name"
+        user_data["name_tries"] = 0
+        user_data["problems"] = []
+        user_data["location"] = ""
+        user_data.pop("hospital_data", None)
+        return render_chat(m(language, "ask_name"), original_message, language)
+
+    # ------------------------------------------------------------ name
+    if active and step == "name":
+        name_text = original_message.strip()
+
+        if interp is not None:
+            if interp["name"]:
+                name_text = interp["name"]
+            else:
+                # not a name (e.g. a symptom): ask once more, then accept the text
+                tries = user_data.get("name_tries", 0) + 1
+                user_data["name_tries"] = tries
+                if tries < 2:
+                    return render_chat(m(language, "ask_name"), original_message, language)
+        else:
+            for prefix in NAME_PREFIXES:
                 if name_text.lower().startswith(prefix.lower()):
                     name_text = name_text[len(prefix):].strip()
                     break
 
-            # শেষে punctuation থাকলে বাদ
-            name_text = name_text.strip(" .,!?:;")
+        name_text = name_text.strip(" .,!?:;")
 
-            user_data["name"] = name_text
+        if not name_text:
+            return render_chat(m(language, "ask_name"), original_message, language)
 
-            user_data["step"] = "problem"
+        user_data["name"] = name_text
+        user_data["name_tries"] = 0
+        user_data["step"] = "problem"
 
-            if language == "en":
-                reply = (
-                    f"Welcome {user_data['name']}. I am SasthoBondhu. "
-                    "Please describe your health problem."
-                )
+        return render_chat(m(language, "welcome", name=name_text), original_message, language)
+
+    # ------------------------------------------------------------ problem
+    if active and step == "problem":
+
+        if interp is not None:
+            blood_intent = {
+                "needs_blood": interp["intent"] == "blood_request",
+                "blood_group": interp["blood_group"]
+            }
+        else:
+            blood_intent = gemini_detect_blood_intent(user_message)
+
+        if blood_intent and blood_intent.get("needs_blood"):
+            blood_group = blood_intent.get("blood_group")
+            user_data["mode"] = "blood"
+            user_data["blood_group"] = blood_group
+
+            if not blood_group:
+                user_data["step"] = "blood_group"
+                reply = m(language, "blood_bleed_hint")
             else:
-                reply = (
-                    f"স্বাগতম {user_data['name']}। "
-                    "আমি স্বাস্থ্যবন্ধু। আপনার স্বাস্থ্য সমস্যাটি বলুন।"
-                )
+                user_data["step"] = "blood_location"
+                reply = m(language, "blood_ask_location", group=blood_group)
 
-            audio_file = create_audio(reply, language)
+            return render_chat(reply, original_message, language)
 
-            chat_history.append({
-                "user": original_message,
-                "ai": reply
-            })
-
-            return render_template(
-                "index.html",
-                chat_history=chat_history,
-                language=language,
-                audio_file=audio_file
-            )
-
-        
-        if user_data["active"] and user_data["step"] == "problem":
-
-            matched_diseases = get_disease_data_with_gemini(user_message)
-
-            if matched_diseases:
-
-                # সব matched disease save করছি
-                user_data["problems"] = [
-                    disease_key
-                    for disease_key, disease_info in matched_diseases
-                ]
-                user_data["step"] = "location"
-
-                reply = get_text(
-                    language,
-                    "ask_location",
-                    name=user_data["name"]
-                )
-
-                audio_file = create_audio(reply, language)
-
-                chat_history.append({
-                    "user": original_message,
-                    "ai": reply
-                })
-
-                return render_template(
-                    "index.html",
-                    chat_history=chat_history,
-                    language=language,
-                    audio_file=audio_file
-                )
-
-            else:
-                if language == "en":
-                    reply = """
-                    I could not understand your problem.
-
-                    Please describe your problem in another way.
-                        """
-                else:
-                    reply = """
-                    আপনার সমস্যাটি বুঝতে পারিনি।
-
-                    একটু অন্যভাবে সমস্যাটি বলুন।
-                    """
-
-                audio_file = create_audio(reply, language)
-
-                chat_history.append({
-                    "user": original_message,
-                    "ai": reply
-                })
-
-                return render_template(
-                    "index.html",
-                    chat_history=chat_history,
-                    language=language,
-                    audio_file=audio_file
-                )
-
-                        
-        if user_data["active"] and user_data["step"] == "location":
-
-            user_data["location"] = original_message
-            user_data["step"] = "hospital"
-
-            location = original_message.lower().strip()
-
-            hospital_name = ""
-            hospital_beds = ""
-            hospital_data = None
-
-            # ---------------------------------
-            # SMART LOCATION EXTRACTION
-            # ---------------------------------
-
-            normalized_location = location
-
-            # আগে বাংলা location detect
-            for bangla, english in district_map.items():
-                if bangla.lower() in location:
-                    normalized_location = english.lower()
-                    break
-
-            # English location detect
-            else:
-                for hospital in hospitals:
-                    district = hospital["district"].strip().lower()
-
-                    if district in location:
-                        normalized_location = district
-                        break
-
-            # =========================
-            # RECORD DASHBOARD DATA
-            # =========================
-
-            dashboard_district = normalized_location.title()
-
-            # Disease + District statistics
-            for disease_key in user_data.get("problems", []):
-            
-                record_dashboard_report(
-                    disease_key,
-                    dashboard_district
-                )
-
-            # District/location থেকে hospital খোঁজা
-            for hospital in hospitals:
-
-                hospital_district = hospital["district"].strip().lower()
-
-                if hospital_district == normalized_location:
-
-                    hospital_name = hospital["name"]
-                    hospital_beds = hospital["beds"]
-                    hospital_data = hospital
-
-                    user_data["hospital_data"] = hospital
-
-                    break
-
-            # ---------------- DISEASE RESPONSE ----------------
-
-            replies = []
-            hospital_needed = False
-
-            for disease_key in user_data.get("problems", []):
-
-                disease_info = disease_data.get(disease_key)
-
-                if not disease_info:
-                    continue
-
-                # মূল পরামর্শ
-                response = get_localized_disease_text(
-                    disease_info,
-                    language,
-                    "response"
-                )
-
-                if response:
-                    replies.append(response)
-
-
-                # সম্ভাব্য কারণ
-                possible_conditions = get_localized_disease_text(
-                    disease_info,
-                    language,
-                    "possible_conditions"
-                )
-
-                if possible_conditions:
-
-                    if language == "en":
-                        replies.append(
-                            "This may be caused by "
-                            + ", ".join(possible_conditions)
-                            + "."
-                        )
-                    else:
-                        replies.append(
-                            "এটি "
-                            + ", ".join(possible_conditions)
-                            + " এর কারণে হতে পারে।"
-                        )
-
-
-                # প্রয়োজনীয় পরীক্ষা
-                tests = disease_info.get(
-                    "tests",
-                    []
-                )
-
-                if tests:
-
-                    if language == "en":
-                        replies.append(
-                            "The doctor may recommend "
-                            + ", ".join(tests)
-                            + "."
-                        )
-                    else:
-                        replies.append(
-                            "ডাক্তার আপনাকে "
-                            + ", ".join(tests)
-                            + " দিতে পারে।"
-                        )
-
-                # Emergency হলে hospital লাগবে
-                if disease_info.get("emergency", False):
-
-                    hospital_needed = True
-
-
-            # Disease response তৈরি
-            reply = "\n".join(replies)
-
-
-            # Emergency হলে hospital information যোগ হবে
-
-            if hospital_name:
-
-                ticket_info = hospital_data.get("ticket", {})
-
-                if language == "en":
-                    hospital_name_en = hospital_data.get(
-                        "name_en",
-                        hospital_name
-                    )
-                    ticket_location_en = ticket_info.get(
-                        "location_en",
-                        "the ticket counter"
-                    )
-                    ticket_price = ticket_info.get(
-                        "price",
-                        "N/A"
-                    )
-                    reply += f"""
-            The nearest hospital to your location is
-            {hospital_name_en}.
-
-            Go to {ticket_location_en} and collect a ticket.
-            The ticket costs {ticket_price} BDT.
-
-            Then see the doctor.
-            Be cautious if any third party at the hospital asks for money in exchange for assistance.
-            """
-
-                else:
-                    ticket_location = ticket_info.get(
-                        "location",
-                        "তথ্য নেই"
-                    )
-                    ticket_price = ticket_info.get(
-                        "price",
-                        "তথ্য নেই"
-                    )
-                    reply += f"""
-            আপনার জন্য নিকটস্থ হাসপাতাল {hospital_name}।
-
-            {ticket_location} থেকে টিকেট কাটবেন।
-            টিকেটের দাম {ticket_price} টাকা।
-
-            তারপর ডাক্তার দেখান।
-            হাসপাতালে কোনো তৃতীয় ব্যক্তি সাহায্যের বিনিময়ে টাকা চাইলে সতর্ক থাকবেন।
-            """
-
-            else:
-                if language == "en":
-                    reply += """
-            This may be an emergency. Please seek medical attention without delay.
-
-            If the condition is serious, go directly to the nearest emergency department.
-            """
-
-                else:
-                    reply += """
-            এটি জরুরি হতে পারে। দেরি না করে দ্রুত চিকিৎসা নিন।
-
-            অবস্থা গুরুতর হলে সরাসরি নিকটস্থ জরুরি বিভাগে যান।
-            """
-
-            audio_file = create_audio(reply, language)
-            chat_history.append({
-                "user": original_message,
-                "ai": reply
-            })
-            user_data["step"] = "post_hospital"
-            return render_template(
-                "index.html",
-                chat_history=chat_history,
-                language=language,
-                audio_file=audio_file
-            )
-
-
-
-
-        if (
-            user_data["active"]
-            and user_data["step"] == "post_hospital"
-        ):
-            
-            
-
-            hospital_data = user_data.get("hospital_data")
-
-
-            test_words = [
-                "টেস্ট",
-                "পরীক্ষা",
-                "test",
-                "tests",
-                "where to do the test",
-                "where can i do the test",
-                "where to test",
-                "investigation",
-                "investigations",
-                "checkup",
-                "check-up"
-            ]
-
-            if any(word in original_message.lower() for word in test_words):
-
-                if hospital_data:
-                    test_data = hospital_data.get("tests", {})
-                    replies = []
-
-                    for disease_key in user_data.get("problems", []):
-                        disease_info = disease_data.get(disease_key)
-
-                        if not disease_info:
-                            continue
-
-                        required_tests = disease_info.get("tests", [])
-
-                        for test in required_tests:
-
-                            if test not in test_data:
-                                continue
-
-                            test_info = test_data[test]
-
-                            test_location = test_info.get(
-                                "location",
-                                "তথ্য নেই"
-                            )
-
-                            test_price = test_info.get(
-                                "price",
-                                "তথ্য নেই"
-                            )
-
-                            if language == "en":
-
-                                # Bangla test-location কে English-এ দেখানোর জন্য
-                                if "২ তলায়, রুম ২০৫" in test_location:
-                                    test_location_en = "2nd floor, Room 205"
-                                elif "২ তলায়, রুম ৩০৫" in test_location:
-                                    test_location_en = "2nd floor, Room 305"
-                                elif "২ তলায়, ইসিজি রুম" in test_location:
-                                    test_location_en = "2nd floor, ECG room"
-                                elif "৩ তলায়, রুম ৩০৫" in test_location:
-                                    test_location_en = "3rd floor, Room 305"
-                                elif "৩ তলায়, রুম ৫০৫" in test_location:
-                                 test_location_en = "3rd floor, Room 505"
-                                elif "৩ তলায়, ইসিজি রুম" in test_location:
-                                    test_location_en = "3rd floor, ECG room"
-                                elif "১ তলায়, ল্যাবরেটরি" in test_location:
-                                    test_location_en = "1st floor, Laboratory"
-                                elif "১ তলায়, ইসিজি রুম" in test_location:
-                                    test_location_en = "1st floor, ECG room"
-                                else:
-                                    test_location_en = test_info.get(
-                                        "location_en",
-                                        test_location
-                                    )
-
-                                replies.append(
-                                    f"For {test} please go to {test_location_en} "
-                                    f"(on the right side of the stairs).\n"
-                                    f"The approximate cost is {test_price} BDT."
-                                )
-
-                            else:
-
-                                replies.append(
-                                    f"{test} টেস্টের জন্য {test_location} "
-                                    f"(সিঁড়ির ডান পাশে) যাবেন।\n"
-                                 f"এটার জন্য প্রায় {test_price} টাকা লাগবে।"
-                                )
-
-                    if replies:
-                        reply = "\n\n".join(replies)
-                    else:
-                        if language == "en":
-                            reply = "No test information was found for your condition."
-                        else:
-                            reply = "আপনার সমস্যার জন্য প্রয়োজনীয় টেস্টের তথ্য পাওয়া যায়নি।"
-
-                else:
-                    if language == "en":
-                        reply = "Hospital test information is not available."
-                    else:
-                        reply = "হাসপাতালের টেস্টের তথ্য পাওয়া যায়নি।"
-
-                user_data["step"] = "test"
-
-            else:
-
-                if language == "en":
-                    reply = """
-                    Please ask a question if you need more information.
-                    """
-                else:
-                    reply = """
-                    আপনার প্রয়োজন অনুযায়ী আরও তথ্য জানতে প্রশ্ন করুন।
-                    """
-
-            audio_file = create_audio(reply, language)
-
-            chat_history.append({
-                "user": original_message,
-                "ai": reply
-            })
-
-            return render_template(
-                "index.html",
-                chat_history=chat_history,
-                language=language,
-                audio_file=audio_file
-            )        
-        
-        
-        if user_data["active"] and user_data["step"] == "test":
-
-            message_lower = original_message.lower()
-
-            report_words = [
-                "এরপর",
-                "তারপর",
-                "রিপোর্ট",
-                "কি করতে হবে",
-                "কী করতে হবে",
-                "এখন কি",
-                "এখন কী",
-
-                "what next",
-                "what should i do next",
-                "what do i do next",
-                "what now",
-                "next",
-                "report",
-                "after the test",
-                "after test",
-                "what after the test"
-            ]
-
-            if any(word in message_lower for word in report_words):
-
-                if language == "en":
-                    reply = (
-                        "You will receive the report in room 202 on the 2nd floor after 3 to 4 hours.\n\n"
-                        "Collect the report by showing the receipt and show it to the doctor in room 201.\n\n"
-                        "Let me know what the doctor says."
-                    )
-                else:
-                    reply = (
-                        "৩ থেকে ৪ ঘন্টা পরে রিপোর্ট পাবেন ২য় তলার ২০২ নম্বর রুমে।\n\n"
-                        "রিসিপ্ট দেখিয়ে রিপোর্ট সংগ্রহ করে ২০১ নম্বর রুমে চিকিৎসককে দেখাবেন।\n\n"
-                        "ডাক্তার কী বলেছেন আমাকে জানাবেন।"
-                    )
-
-                user_data["step"] = "report"
-
-            else:
-
-                if language == "en":
-                    reply = """
-                        Please complete the required tests first. Once the tests are done, ask me what to do next.
-                        """
-                else:
-                    reply = """
-                        আগে প্রয়োজনীয় পরীক্ষাগুলো সম্পন্ন করুন। পরীক্ষা শেষ হলে এরপর কী করতে হবে তা জানতে আমাকে বলুন।
-                        """
-
-            audio_file = create_audio(reply, language)
-
-            chat_history.append({
-                "user": original_message,
-                "ai": reply
-            })
-   
-
-            return render_template(
-                "index.html",
-                chat_history=chat_history,
-                language=language,
-                audio_file=audio_file
-            )
-
-        if user_data["active"] and user_data["step"] == "report":
-
-            message_lower = original_message.lower()
-
-            admission_words = [
-                "ভর্তি",
-                "ভর্তি হব",
-                "ভর্তি হতে হবে",
-                "এখন কি করব",
-                "এখন কী করব",
-                "এরপর কি",
-                "এরপর কী",
-
-                "admission",
-                "admit",
-                "get admitted",
-                "what next",
-                "what should i do",
-                "what do i do now",
-                "what now",
-                "next step"
-            ]
-
-            if any(word in message_lower for word in admission_words):
-
-                if language == "en":
-                    reply = (
-                        "No problem, if the doctor says for admission, how much will it cost,\n\n"
-                        "I will tell you how to get admitted.\n\n"
-                        "There is no reason to be tense, I am always by your side."
-                    )
-                else:
-                    reply = (
-                        "কোনো সমস্যা নেই, ডাক্তার যদি ভর্তির জন্য বলে, তাহলে কত টাকা লাগবে,\n\n"
-                        "কিভাবে ভর্তি হবে আমি বলে দিবো।\n\n"
-                        "টেনশনের কোনো কারণ নেই, আমি সবসময় তোমার পাশে আছি।"
-                    )
-
-                user_data["step"] = "admission"
-
-            else:
-
-                if language == "en":
-                    reply = """
-                        Once you receive the report, show it to the doctor. The doctor will decide whether further treatment or admission is needed.
-                        """
-                else:
-                    reply = """
-                        রিপোর্ট পাওয়ার পর সেটি ডাক্তারকে দেখান। পরবর্তী চিকিৎসা বা হাসপাতালে ভর্তি হওয়া প্রয়োজন কি না, ডাক্তার তা নির্ধারণ করবেন।
-                        """
-
-            audio_file = create_audio(reply, language)
-
-            chat_history.append({
-                "user": original_message,
-                "ai": reply
-            })
-
-            return render_template(
-                "index.html",
-                chat_history=chat_history,
-                language=language,
-                audio_file=audio_file
-            )
-
-
-        for local_word, normal_word in regional_words.items():
-
-            if local_word in user_message:
-
-                user_message = user_message.replace(
-                    local_word,
-                    normal_word
-                )
-
-        if user_message.strip().lower() in [
-            "হ্যাঁ",
-            "হ্যা",
-            "yes",
-            "haan",
-            "ha",
-            "ji"
-        ]:
-
-            import random
-        
-            ticket_id = "SB-" + str(
-                random.randint(10000, 99999)
-            )
-
-            ticket_data["total_tickets"] += 1
-
-            reply = f"""
-         টিকিট বুক করা হয়েছে
-
-        Ticket আইডি:
-        {ticket_id}
-        """
-            audio_file = create_audio(reply, language)
-
-            chat_history.append({
-                "user": user_message,
-                "ai": reply
-            })
-
-            return render_template(
-                "index.html",
-                chat_history=chat_history,
-                language=language,
-                audio_file=audio_file
-            )
-
-
-        # ---------------- DISEASE DATABASE ----------------
-
-        hospital_needed = False
-        reply = ""
-
-
-        matched_diseases = get_disease_data_with_gemini(user_message)
+        matched_diseases = resolve_diseases(interp, user_message)
 
         if matched_diseases:
+            user_data["problems"] = [key for key, info in matched_diseases]
+            user_data["step"] = "location"
 
-            replies = []
+            recent_chats.append({"message": original_message})
+            if len(recent_chats) > 5:
+                recent_chats.pop(0)
 
-            for disease_key, disease_info in matched_diseases:
-
-                # সংক্ষিপ্ত মূল পরামর্শ
-                response = get_localized_disease_text(
-                    disease_info,
-                    language,
-                    "response"
-                )
-
-                if response:
-                    replies.append(response)
-
-                # Emergency হলে hospital লাগবে
-                if disease_info.get("emergency", False):
-                    hospital_needed = True
-
-                
-
-            reply = "\n".join(replies)
-
+            reply = m(language, "ask_location", name=user_data.get("name", ""))
         else:
+            reply = m(language, "not_understood")
 
-            reply = """
-            দুঃখিত।
-            এই সমস্যার জন্য এখনো ডেটা যুক্ত করা হয়নি।
-            """
+        return render_chat(reply, original_message, language)
 
-        
-        for hospital in hospitals:
+    # ------------------------------------------------------------ blood group
+    if active and step == "blood_group":
 
-            if hospital["district"].lower() in user_message.lower():
+        group_match = re.search(
+            r'(?<![A-Z])(AB|A|B|O)\s*([+-])(?![A-Z0-9])',
+            original_message.upper()
+        )
+        gemini_group = interp["blood_group"] if interp is not None else None
 
-                hospital_name = hospital["name"]
+        if gemini_group or group_match:
+            if gemini_group:
+                blood_group = gemini_group
+            else:
+                blood_group = (group_match.group(1) + group_match.group(2)).upper()
 
-                break
-        if hospital_name == "":
+            user_data["blood_group"] = blood_group
+            user_data["step"] = "blood_location"
+            reply = m(language, "blood_group_ok", group=blood_group)
+        else:
+            reply = m(language, "blood_group_invalid")
 
-            hospital_name = "উপজেলা স্বাস্থ্য কমপ্লেক্স"
+        return render_chat(reply, original_message, language)
 
-        if hospital_needed:
+    # ------------------------------------------------------------ blood location + donor search
+    if active and step == "blood_location":
 
-            hospital = get_hospital_by_district(user_message)
+        location = original_message.strip()
+        if interp is not None and interp["place"]:
+            location = interp["place"]
+
+        blood_group = user_data.get("blood_group")
+        user_data["location"] = location
+
+        matched_donors = search_blood_donors(blood_group, location)
+        lang = norm_lang(language)
+
+        if matched_donors:
+            reply = m(language, "donors_found_header",
+                      count=len(matched_donors), group=blood_group, location=location)
+
+            for index, donor in enumerate(matched_donors, 1):
+                if lang == "bn":
+                    donor_name = donor.get("name_bn", donor.get("name", "অজানা"))
+                else:
+                    donor_name = donor.get("name", "Unknown")
+
+                reply += m(language, "donor_line",
+                           index=index, donor_name=donor_name,
+                           donor_id=donor.get("id", "N/A"),
+                           phone=donor.get("phone", "N/A"))
+
+            if SHOW_DEMO_NOTE and any(str(d.get("id", "")).startswith("ID") for d in matched_donors):
+                reply += m(language, "donor_demo_note")
+        else:
+            reply = m(language, "donors_none", group=blood_group, location=location)
+
+        # back to where the patient was
+        if user_data.get("hospital_data") and user_data.get("problems"):
+            user_data["step"] = "post_hospital"
+        else:
+            user_data["step"] = "problem"
+        user_data["mode"] = "flow"
+
+        return render_chat(reply, original_message, language)
+
+    # ------------------------------------------------------------ location -> disease answer + hospital
+    if active and step == "location":
+
+        place = interp["place"] if (interp is not None and interp["place"]) else None
+        hospital = resolve_hospital(place) if place else None
+        if hospital is None:
+            hospital = resolve_hospital(original_message)
+
+        user_data["location"] = original_message
+        if hospital:
+            user_data["hospital_data"] = hospital
+        else:
+            user_data.pop("hospital_data", None)
+
+        # dashboard
+        stats_district = hospital["district"] if hospital else "Unknown"
+        for disease_key in user_data.get("problems", []):
+            record_dashboard_report(disease_key, stats_district)
+
+        lines = []
+        emergency = False
+        for disease_key in user_data.get("problems", []):
+            disease_info = disease_data.get(disease_key)
+            if not disease_info:
+                continue
+            lines += disease_answer_lines(disease_info, language)
+            if disease_info.get("emergency", False):
+                emergency = True
+
+        reply = "\n".join(lines)
+
+        if hospital:
+            reply += "\n\n" + hospital_info_text(hospital, language)
+        elif emergency:
+            reply += "\n\n" + m(language, "emergency_go_now")
+        else:
+            reply += "\n\n" + m(language, "no_hospital", location=original_message.strip())
+
+        user_data["step"] = "post_hospital"
+        return render_chat(reply, original_message, language)
+
+    # ------------------------------------------------------------ new topic after the first answer
+    # Another disease or a blood request: keep earlier problems and answer this too.
+    if (
+        interp is not None
+        and active
+        and step in ("post_hospital", "test", "report", "admission")
+    ):
+        if interp["intent"] == "blood_request":
+            return render_chat(
+                begin_blood_flow(interp["blood_group"], language),
+                original_message,
+                language
+            )
+
+        known_problems = user_data.get("problems", [])
+        new_keys = [k for k in interp["disease_keys"] if k not in known_problems]
+
+        if new_keys and interp["intent"] in ("describe_problem", "other"):
+            user_data["problems"] = known_problems + new_keys
+            user_data["step"] = "post_hospital"
+
+            hospital_for_stats = user_data.get("hospital_data") or {}
+            stats_district = hospital_for_stats.get("district") or "Unknown"
+            for disease_key in new_keys:
+                record_dashboard_report(disease_key, stats_district)
+
+            recent_chats.append({"message": original_message})
+            if len(recent_chats) > 5:
+                recent_chats.pop(0)
+
+            return render_chat(
+                build_additional_problem_reply(new_keys, language),
+                original_message,
+                language
+            )
+
+    # ------------------------------------------------------------ after hospital info: tests
+    if active and step == "post_hospital":
+
+        if interp is not None:
+            wants_test = (interp["intent"] == "ask_test")
+        else:
+            wants_test = any(w in lower_message for w in TEST_WORDS)
+
+        if wants_test:
+            hospital = user_data.get("hospital_data")
 
             if hospital:
+                test_data = hospital.get("tests", {})
+                replies = []
+                shown_tests = set()
 
-                hospital_beds = hospital.get("beds", "N/A")
-                ticket_info = hospital.get("ticket", {})
+                for disease_key in user_data.get("problems", []):
+                    disease_info = disease_data.get(disease_key)
+                    if not disease_info:
+                        continue
 
-                if language == "en":
+                    for test in disease_info.get("tests", []):
+                        if test not in test_data or test in shown_tests:
+                            continue
+                        shown_tests.add(test)
 
-                    hospital_name = hospital.get(
-                        "name_en",
-                        hospital.get("name", "Nearest hospital")
-                    )
+                        test_info = test_data[test]
+                        replies.append(m(
+                            language, "test_line",
+                            test=test,
+                            location=test_location(test_info, language),
+                            price=format_price(test_info.get("price"), hospital, language)
+                        ))
 
-                    ticket_location = ticket_info.get(
-                        "location_en",
-                        "the ticket counter"
-                    )
-
-                    ticket_price = ticket_info.get(
-                        "price",
-                        "N/A"
-                    )
-
-                    reply += f"""
-
-        The nearest hospital to your location is
-        {hospital_name}.
-
-        Go to {ticket_location} and collect a ticket.
-        The ticket costs {ticket_price} BDT.
-
-        Then see the doctor.
-        Be cautious if any third party at the hospital asks for money in exchange for assistance.
-        """
-
+                if replies:
+                    reply = "\n\n".join(replies)
+                    if SHOW_DEMO_NOTE and hospital.get("demo"):
+                        reply += "\n\n" + m(language, "demo_note")
                 else:
-
-                    hospital_name = hospital.get(
-                        "name",
-                        "নিকটস্থ হাসপাতাল"
-                    )
-
-                    ticket_location = ticket_info.get(
-                        "location",
-                        "তথ্য নেই"
-                    )
-
-                    ticket_price = ticket_info.get(
-                        "price",
-                        "তথ্য নেই"
-                    )
-
-                    reply += f"""
-
-        আপনার বাসা থেকে সবচেয়ে কাছে হলো
-        {hospital_name}।
-
-        {ticket_location} থেকে টিকেট কাটবেন।
-        টিকেটের দাম {ticket_price} টাকা।
-
-        তারপর ডাক্তার দেখান।
-        হাসপাতালে কোনো তৃতীয় ব্যক্তি আপনাকে সাহায্য করার বিনিময়ে টাকা চাইলে সতর্ক থাকবেন।
-        """
-
+                    reply = m(language, "no_test_info")
             else:
+                reply = m(language, "no_hospital_test_info")
 
-                if language == "en":
+            user_data["step"] = "test"
+        else:
+            reply = m(language, "ask_question")
 
-                    reply += """
+        return render_chat(reply, original_message, language)
 
-        This may be an emergency. Please seek medical attention without delay.
+    # ------------------------------------------------------------ tests done -> report
+    if active and step == "test":
 
-        If you provide your location, I can help find information about a nearby hospital.
-        If the condition is serious, go directly to the nearest emergency department.
-        """
+        if interp is not None:
+            wants_next = (interp["intent"] == "ask_next")
+        else:
+            wants_next = any(w in lower_message for w in NEXT_WORDS)
 
-                else:
+        if wants_next:
+            reply = m(language, "report_info")
+            user_data["step"] = "report"
+        else:
+            reply = m(language, "complete_tests_first")
 
-                    reply += """
+        return render_chat(reply, original_message, language)
 
-        এটি জরুরি হতে পারে। দেরি না করে দ্রুত চিকিৎসা নিন।
+    # ------------------------------------------------------------ report -> admission
+    if active and step == "report":
 
-        আপনার অবস্থান জানা গেলে নিকটস্থ হাসপাতালের তথ্য দিতে পারব।
-        অবস্থা গুরুতর হলে সরাসরি নিকটস্থ জরুরি বিভাগে যান।
-        """
+        if interp is not None:
+            wants_admission = interp["intent"] in ("ask_admission", "ask_next")
+        else:
+            wants_admission = any(w in lower_message for w in ADMISSION_WORDS)
 
+        if wants_admission:
+            reply = m(language, "admission_info")
+            user_data["step"] = "admission"
+        else:
+            reply = m(language, "show_doctor")
 
-        reply = (
-           reply.replace("*", "")
-                .replace("#", "")
-                .replace("**", "")
-        )
+        return render_chat(reply, original_message, language)
 
-        audio_file = create_audio(reply, language)
+    # ------------------------------------------------------------ "yes" -> ticket
+    if interp is not None:
+        said_yes = (interp["intent"] == "confirm_yes")
+    else:
+        said_yes = lower_message in YES_WORDS
 
-        chat_history.append({
-            "user": original_message,
-            "ai": reply
-        })
+    if said_yes:
+        import random
+        ticket_id = "SB-" + str(random.randint(10000, 99999))
+        ticket_data["total_tickets"] += 1
+        return render_chat(m(language, "ticket_booked", ticket_id=ticket_id), original_message, language)
 
-        recent_chats.append({
-            "message": original_message
-        })
+    # ------------------------------------------------------------ everything else: disease database
+    matched_diseases = resolve_diseases(interp, user_message)
+    hospital_needed = False
 
-        if len(recent_chats) > 5:
-            recent_chats.pop(0)
+    if matched_diseases:
+        replies = []
+        for disease_key, disease_info in matched_diseases:
+            response = get_localized_disease_text(disease_info, norm_lang(language), "response")
+            if response:
+                replies.append(response)
+            if disease_info.get("emergency", False):
+                hospital_needed = True
+        reply = "\n".join(replies)
+    else:
+        reply = m(language, "no_data")
 
-    return render_template(
-        "index.html",
-        reply=reply,
-        chat_history=chat_history,
-        audio_file=audio_file,
-        language=language
-    )
+    if hospital_needed:
+        hospital = resolve_hospital(user_message)
+        if hospital:
+            reply += "\n\n" + hospital_info_text(hospital, language)
+        else:
+            reply += "\n\n" + m(language, "emergency_ask_location")
+
+    reply = reply.replace("*", "").replace("#", "")
+
+    recent_chats.append({"message": original_message})
+    if len(recent_chats) > 5:
+        recent_chats.pop(0)
+
+    return render_chat(reply, original_message, language)
+
 
 # =========================
 # DASHBOARD HELPER FUNCTIONS
@@ -1978,7 +1921,7 @@ def set_language():
 
     language = data.get("language", "bn")
 
-    if language not in ["bn", "en", "fr"]:
+    if language not in SUPPORTED_LANGUAGES:
         language = "bn"
 
     session["language"] = language
