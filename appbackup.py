@@ -498,10 +498,51 @@ def build_additional_problem_reply(new_keys, language):
     return "\n".join(lines)
 
 
-def render_chat(reply, original_message, language):
-    """Shared tail: audio + chat history + render."""
+def ui_state():
+    """What the front end needs to draw the journey progress bar."""
+    step = user_data.get("step", "") if user_data.get("active") else ""
+    return {"step": step, "blood": step.startswith("blood")}
+
+
+def hospital_card(hospital, language):
+    return {
+        "type": "hospital",
+        "name": hospital_name(hospital, language),
+        "ticket_location": ticket_location(hospital, language),
+        "ticket_price": format_price(hospital.get("ticket", {}).get("price"), hospital, language),
+        "warning": m(language, "scam_warning"),
+        "demo": bool(SHOW_DEMO_NOTE and hospital.get("demo"))
+    }
+
+
+def emergency_card(language):
+    return {"type": "emergency", "text": m(language, "emergency_go_now")}
+
+
+def render_chat(reply, original_message, language, display=None, cards=None):
+    """
+    Shared tail of every answer.
+      reply   = full text (spoken by the audio)
+      display = text shown in the chat bubble (defaults to reply)
+      cards   = structured cards (hospital / tests / donors / emergency)
+    The page calls "/" with fetch() and gets JSON back (no page reload).
+    """
+    from datetime import datetime
+
     audio_file = create_audio(reply, language)
-    chat_history.append({"user": original_message, "ai": reply})
+    entry = {
+        "user": original_message,
+        "ai": reply,
+        "display": display if display is not None else reply,
+        "cards": cards or [],
+        "audio": audio_file,
+        "time": datetime.now().strftime("%H:%M")
+    }
+    chat_history.append(entry)
+
+    if request.headers.get("X-Requested-With") == "fetch":
+        return jsonify({**entry, "state": ui_state()})
+
     return render_template(
         "index.html",
         chat_history=chat_history,
@@ -1038,6 +1079,37 @@ def speech_to_text(audio_path):
 
 
 
+@app.route("/history")
+def history():
+    items = []
+    for c in chat_history:
+        items.append({
+            "user": c.get("user", ""),
+            "ai": c.get("ai", ""),
+            "display": c.get("display", c.get("ai", "")),
+            "cards": c.get("cards", []),
+            "audio": c.get("audio"),
+            "time": c.get("time", "")
+        })
+    return jsonify({
+        "history": items,
+        "state": ui_state(),
+        "language": user_data.get("language", "bn")
+    })
+
+
+@app.route("/reset", methods=["POST"])
+def reset_chat():
+    """New chat button: forget the conversation and the patient."""
+    chat_history.clear()
+    user_data.update({
+        "active": False, "step": "", "mode": "", "name": "",
+        "location": "", "problems": [], "name_tries": 0
+    })
+    user_data.pop("hospital_data", None)
+    return jsonify({"ok": True})
+
+
 @app.route("/", methods=["GET", "POST"])
 def home():
     """
@@ -1209,10 +1281,14 @@ def home():
 
         matched_donors = search_blood_donors(blood_group, location)
         lang = norm_lang(language)
+        display_text = None
+        cards = []
 
         if matched_donors:
             reply = m(language, "donors_found_header",
                       count=len(matched_donors), group=blood_group, location=location)
+            display_text = reply.strip()
+            donor_items = []
 
             for index, donor in enumerate(matched_donors, 1):
                 if lang == "bn":
@@ -1224,9 +1300,21 @@ def home():
                            index=index, donor_name=donor_name,
                            donor_id=donor.get("id", "N/A"),
                            phone=donor.get("phone", "N/A"))
+                donor_items.append({
+                    "name": donor_name,
+                    "id": donor.get("id", "N/A"),
+                    "phone": donor.get("phone", "N/A"),
+                    "group": blood_group
+                })
 
-            if SHOW_DEMO_NOTE and any(str(d.get("id", "")).startswith("ID") for d in matched_donors):
+            demo_donors = SHOW_DEMO_NOTE and any(str(d.get("id", "")).startswith("ID") for d in matched_donors)
+            if demo_donors:
                 reply += m(language, "donor_demo_note")
+
+            cards.append({
+                "type": "donors", "group": blood_group,
+                "location": location, "items": donor_items, "demo": bool(demo_donors)
+            })
         else:
             reply = m(language, "donors_none", group=blood_group, location=location)
 
@@ -1237,7 +1325,7 @@ def home():
             user_data["step"] = "problem"
         user_data["mode"] = "flow"
 
-        return render_chat(reply, original_message, language)
+        return render_chat(reply, original_message, language, display_text, cards)
 
     # ------------------------------------------------------------ location -> disease answer + hospital
     if active and step == "location":
@@ -1268,17 +1356,25 @@ def home():
             if disease_info.get("emergency", False):
                 emergency = True
 
-        reply = "\n".join(lines)
+        advice = "\n".join(lines)
+        reply = advice
+        display_text = advice
+        cards = []
+
+        if emergency:
+            reply += "\n\n" + m(language, "emergency_go_now")
+            cards.append(emergency_card(language))
 
         if hospital:
             reply += "\n\n" + hospital_info_text(hospital, language)
-        elif emergency:
-            reply += "\n\n" + m(language, "emergency_go_now")
-        else:
-            reply += "\n\n" + m(language, "no_hospital", location=original_message.strip())
+            cards.append(hospital_card(hospital, language))
+        elif not emergency:
+            no_hospital_text = m(language, "no_hospital", location=original_message.strip())
+            reply += "\n\n" + no_hospital_text
+            display_text += "\n\n" + no_hospital_text
 
         user_data["step"] = "post_hospital"
-        return render_chat(reply, original_message, language)
+        return render_chat(reply, original_message, language, display_text, cards)
 
     # ------------------------------------------------------------ new topic after the first answer
     # Another disease or a blood request: keep earlier problems and answer this too.
@@ -1324,12 +1420,16 @@ def home():
         else:
             wants_test = any(w in lower_message for w in TEST_WORDS)
 
+        display_text = None
+        cards = []
+
         if wants_test:
             hospital = user_data.get("hospital_data")
 
             if hospital:
                 test_data = hospital.get("tests", {})
                 replies = []
+                test_items = []
                 shown_tests = set()
 
                 for disease_key in user_data.get("problems", []):
@@ -1349,11 +1449,24 @@ def home():
                             location=test_location(test_info, language),
                             price=format_price(test_info.get("price"), hospital, language)
                         ))
+                        test_items.append({
+                            "test": test,
+                            "location": test_location(test_info, language),
+                            "price": format_price(test_info.get("price"), hospital, language)
+                        })
 
                 if replies:
                     reply = "\n\n".join(replies)
-                    if SHOW_DEMO_NOTE and hospital.get("demo"):
+                    demo_hospital = bool(SHOW_DEMO_NOTE and hospital.get("demo"))
+                    if demo_hospital:
                         reply += "\n\n" + m(language, "demo_note")
+                    display_text = m(language, "tests_intro")
+                    cards = [{
+                        "type": "tests",
+                        "hospital": hospital_name(hospital, language),
+                        "items": test_items,
+                        "demo": demo_hospital
+                    }]
                 else:
                     reply = m(language, "no_test_info")
             else:
@@ -1363,7 +1476,7 @@ def home():
         else:
             reply = m(language, "ask_question")
 
-        return render_chat(reply, original_message, language)
+        return render_chat(reply, original_message, language, display_text, cards)
 
     # ------------------------------------------------------------ tests done -> report
     if active and step == "test":
@@ -1425,12 +1538,20 @@ def home():
     else:
         reply = m(language, "no_data")
 
+    display_text = None
+    cards = []
+
     if hospital_needed:
         hospital = resolve_hospital(user_message)
+        display_text = reply.replace("*", "").replace("#", "")
         if hospital:
             reply += "\n\n" + hospital_info_text(hospital, language)
+            cards.append(emergency_card(language))
+            cards.append(hospital_card(hospital, language))
         else:
-            reply += "\n\n" + m(language, "emergency_ask_location")
+            ask_text = m(language, "emergency_ask_location")
+            reply += "\n\n" + ask_text
+            display_text += "\n\n" + ask_text.replace("*", "").replace("#", "")
 
     reply = reply.replace("*", "").replace("#", "")
 
@@ -1438,7 +1559,7 @@ def home():
     if len(recent_chats) > 5:
         recent_chats.pop(0)
 
-    return render_chat(reply, original_message, language)
+    return render_chat(reply, original_message, language, display_text, cards)
 
 
 # =========================

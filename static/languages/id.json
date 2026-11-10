@@ -54,5 +54,14 @@
     "ui_card_call": "Telepon",
     "ui_card_in": "di",
     "ui_demo": "Data demo",
-    "ui_emergency": "Darurat"
+    "ui_emergency": "Darurat",
+    "ui_dashboard": "Dasbor",
+    "ui_card_price_check": "Cek harga",
+    "ui_card_asked": "Diminta",
+    "ui_card_real": "Harga sebenarnya",
+    "ui_card_go_to": "Datang langsung ke",
+    "ui_verdict_fair": "Harga wajar",
+    "ui_verdict_high": "Agak tinggi",
+    "ui_verdict_over": "Harga berlebihan",
+    "ui_times_higher": "kali lipat"
 }

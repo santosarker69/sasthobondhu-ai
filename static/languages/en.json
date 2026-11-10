@@ -54,5 +54,14 @@
     "ui_card_call": "Call",
     "ui_card_in": "in",
     "ui_demo": "Demo data",
-    "ui_emergency": "Emergency"
+    "ui_emergency": "Emergency",
+    "ui_dashboard": "Dashboard",
+    "ui_card_price_check": "Price check",
+    "ui_card_asked": "They asked",
+    "ui_card_real": "Real price",
+    "ui_card_go_to": "Go directly to",
+    "ui_verdict_fair": "Fair price",
+    "ui_verdict_high": "A bit high",
+    "ui_verdict_over": "Overcharged",
+    "ui_times_higher": "times higher"
 }

@@ -142,6 +142,51 @@ MSG = {
         "en": "Here are the tests for your problem(s).",
         "id": "Berikut tes yang diperlukan untuk masalah Anda.",
     },
+    "price_fair": {
+        "bn": "ঠিক আছে। {hospital}-এ {item} এর সঠিক দাম প্রায় {official}। আপনাকে {quoted} চাওয়া হয়েছে, এটি ন্যায্য দাম।",
+        "en": "That looks fair. The real price for {item} at {hospital} is about {official}. You were asked for {quoted}, which is reasonable.",
+        "id": "Harga itu wajar. Harga sebenarnya untuk {item} di {hospital} sekitar {official}. Anda diminta {quoted}, itu masih wajar.",
+    },
+    "price_high": {
+        "bn": "দামটা একটু বেশি। {hospital}-এ {item} এর সঠিক দাম প্রায় {official}, আপনাকে {quoted} চাওয়া হয়েছে (প্রায় {times} গুণ)। সরাসরি {where}-এ গিয়ে দাম জেনে নিন।",
+        "en": "That is a bit high. The real price for {item} at {hospital} is about {official}, but you were asked for {quoted} (about {times} times). Go directly to {where} and check the price yourself.",
+        "id": "Harga itu agak tinggi. Harga sebenarnya untuk {item} di {hospital} sekitar {official}, tetapi Anda diminta {quoted} (sekitar {times} kali lipat). Datang langsung ke {where} dan cek harganya sendiri.",
+    },
+    "price_over": {
+        "bn": "সতর্ক হোন! {hospital}-এ {item} এর সঠিক দাম প্রায় {official}, কিন্তু আপনাকে {quoted} চাওয়া হয়েছে, যা প্রায় {times} গুণ বেশি। দালালকে টাকা দেবেন না। সরাসরি {where}-এ গিয়ে নিজে করুন।",
+        "en": "Be careful! The real price for {item} at {hospital} is about {official}, but you were asked for {quoted}, which is about {times} times higher. Do not pay the middleman. Go directly to {where} yourself.",
+        "id": "Hati-hati! Harga sebenarnya untuk {item} di {hospital} sekitar {official}, tetapi Anda diminta {quoted}, sekitar {times} kali lipat. Jangan bayar ke calo. Datang langsung ke {where}.",
+    },
+    "price_report_ask": {
+        "bn": "চাইলে এই ঘটনাটি বেনামে রিপোর্ট করতে পারেন। আপনার নাম বা ফোন নম্বর নেওয়া হবে না। রিপোর্ট করবেন? (হ্যাঁ / না)",
+        "en": "If you like, you can report this anonymously. Your name and phone number are not collected. Report it? (yes / no)",
+        "id": "Jika Anda mau, Anda bisa melaporkan kejadian ini secara anonim. Nama dan nomor telepon Anda tidak dikumpulkan. Laporkan? (ya / tidak)",
+    },
+    "price_reported": {
+        "bn": "ধন্যবাদ। রিপোর্টটি বেনামে সংরক্ষণ করা হয়েছে। আপনার সতর্কতা অন্য রোগীদের সাহায্য করবে।",
+        "en": "Thank you. The report was saved anonymously. Your alert will help other patients.",
+        "id": "Terima kasih. Laporan disimpan secara anonim. Peringatan Anda akan membantu pasien lain.",
+    },
+    "price_declined": {
+        "bn": "ঠিক আছে, কোনো রিপোর্ট করা হয়নি।",
+        "en": "Okay, nothing was reported.",
+        "id": "Baik, tidak ada yang dilaporkan.",
+    },
+    "price_need_info": {
+        "bn": "কোন সেবার জন্য (যেমন CBC টেস্ট বা টিকেট) কত টাকা চাওয়া হয়েছে, তা বলুন।",
+        "en": "Please tell me which service (for example the CBC test or the ticket) and how much money was asked.",
+        "id": "Sebutkan layanan apa (misalnya tes CBC atau tiket) dan berapa uang yang diminta.",
+    },
+    "price_need_hospital": {
+        "bn": "এটা কোন হাসপাতাল বা এলাকায়? নাম বা এলাকার নাম বলুন।",
+        "en": "Which hospital or area was this? Tell me the name or the area.",
+        "id": "Di rumah sakit atau area mana ini? Sebutkan nama atau daerahnya.",
+    },
+    "price_unknown_item": {
+        "bn": "{hospital}-এর ডেটায় {item} এর দাম এখনো নেই।",
+        "en": "I do not have a price for {item} at {hospital} yet.",
+        "id": "Saya belum memiliki harga {item} di {hospital}.",
+    },
     "demo_note": {
         "bn": "বিঃদ্রঃ এই হাসপাতালের তথ্য ডেমো ডেটা।",
         "en": "Note: this hospital information is demo data.",
@@ -243,6 +288,7 @@ ADMISSION_WORDS = [
     "what do i do now", "what now", "next step",
     "rawat inap", "dirawat", "opname", "masuk rumah sakit", "selanjutnya",
 ]
+NO_WORDS = ["না", "no", "nope", "nah", "tidak", "nggak", "gak", "enggak", "non"]
 YES_WORDS = ["হ্যাঁ", "হ্যা", "yes", "haan", "ha", "ji", "ya", "iya", "oke", "ok", "baik"]
 
 
@@ -333,3 +379,13 @@ def test_location(test_info, language):
     if lang == "id":
         return test_info.get("location_id") or bn_location_to(bn, "id")
     return test_info.get("location_en") or bn_location_to(bn, "en")
+
+
+_TICKET_LABEL = {"bn": "টিকেট", "en": "ticket", "id": "tiket"}
+
+
+def item_label(item, language):
+    """Readable name of a priced service: 'ticket' or a test name like CBC."""
+    if item == "ticket":
+        return _TICKET_LABEL[norm_lang(language)]
+    return item

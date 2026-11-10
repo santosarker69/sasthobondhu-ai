@@ -54,5 +54,14 @@
     "ui_card_call": "ফোন",
     "ui_card_in": "এলাকা",
     "ui_demo": "ডেমো ডেটা",
-    "ui_emergency": "জরুরি"
+    "ui_emergency": "জরুরি",
+    "ui_dashboard": "ড্যাশবোর্ড",
+    "ui_card_price_check": "দাম যাচাই",
+    "ui_card_asked": "আপনাকে চেয়েছে",
+    "ui_card_real": "সঠিক দাম",
+    "ui_card_go_to": "সরাসরি যান",
+    "ui_verdict_fair": "ন্যায্য দাম",
+    "ui_verdict_high": "সামান্য বেশি",
+    "ui_verdict_over": "অতিরিক্ত চার্জ",
+    "ui_times_higher": "গুণ বেশি"
 }

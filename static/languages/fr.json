@@ -54,5 +54,14 @@
     "ui_card_call": "Appeler",
     "ui_card_in": "à",
     "ui_demo": "Données de démo",
-    "ui_emergency": "Urgence"
+    "ui_emergency": "Urgence",
+    "ui_dashboard": "Tableau de bord",
+    "ui_card_price_check": "Vérification du prix",
+    "ui_card_asked": "Prix demandé",
+    "ui_card_real": "Prix réel",
+    "ui_card_go_to": "Aller directement à",
+    "ui_verdict_fair": "Prix correct",
+    "ui_verdict_high": "Un peu élevé",
+    "ui_verdict_over": "Surfacturé",
+    "ui_times_higher": "fois plus cher"
 }
