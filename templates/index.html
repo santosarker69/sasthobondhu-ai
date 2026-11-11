@@ -353,7 +353,7 @@ a.side-btn{ text-decoration:none; color:inherit; }
             <button class="hamburger" id="menuBtn" type="button" aria-label="Menu"><span data-icon="menu"></span></button>
             <div class="top-brand">
                 <img class="mini-logo" src="{{ url_for('static', filename='logo.jpg') }}" alt="">
-                <div class="top-title" data-i18n="ui_header_title">Health navigator</div>
+                <div class="top-title" data-i18n="ui_header_title">Sastho Bondhu</div>
             </div>
             <ol class="stepper" id="stepper" aria-label="Journey"></ol>
             <span class="blood-pill" id="bloodPill"><span data-icon="drop"></span><span data-i18n="ui_blood_mode">Blood donor search</span></span>
@@ -669,13 +669,11 @@ a.side-btn{ text-decoration:none; color:inherit; }
 
         var meta = el("div", "meta");
         meta.appendChild(el("span", null, h.time || ""));
-        if (h.audio || h.audio_id) {
+        if (h.audio) {
             var btn = el("button", "listen"); btn.type = "button";
             btn.innerHTML = icon("volume", 14);
             btn.appendChild(el("span", null, t("ui_listen", "Listen")));
-            btn.addEventListener("click", function () {
-                ensureAudio(h).then(function (file) { if (file) playAudio(file, btn); });
-            });
+            btn.addEventListener("click", function () { playAudio(h.audio, btn); });
             meta.appendChild(btn);
             m._listenBtn = btn;
         }
@@ -716,13 +714,13 @@ a.side-btn{ text-decoration:none; color:inherit; }
         scrollBottom(false);
     }
 
-    function showTyping(labelKey) {
+    function showTyping() {
         var m = el("div", "msg bot typing"); m.id = "typing";
         var av = el("div", "avatar"); var img = el("img"); img.src = LOGO; img.alt = ""; av.appendChild(img);
         var st = el("div", "stack");
         var b = el("div", "bubble");
         var dots = el("span", "dots"); dots.appendChild(el("i")); dots.appendChild(el("i")); dots.appendChild(el("i"));
-        b.appendChild(dots); b.appendChild(el("span", null, t(labelKey || "ui_typing", "Typing")));
+        b.appendChild(dots); b.appendChild(el("span", null, t("ui_typing", "Typing")));
         st.appendChild(b); m.appendChild(av); m.appendChild(st);
         chatInner.appendChild(m);
         scrollBottom(true);
@@ -733,16 +731,6 @@ a.side-btn{ text-decoration:none; color:inherit; }
     }
 
     /* ---------------- audio ---------------- */
-    // the mp3 of an answer is made in the background; ask for it when needed
-    function ensureAudio(h) {
-        if (h.audio) return Promise.resolve(h.audio);
-        if (!h.audio_id) return Promise.resolve(null);
-        return fetch("/audio/" + h.audio_id)
-            .then(function (r) { return r.json(); })
-            .then(function (j) { h.audio = j.audio || null; return h.audio; })
-            .catch(function () { return null; });
-    }
-
     var audioEl = null, audioBtn = null;
     function stopAudio() {
         if (audioEl) { try { audioEl.pause(); } catch (e) {} }
@@ -773,7 +761,6 @@ a.side-btn{ text-decoration:none; color:inherit; }
 
         var welcome = $("welcome");
         if (welcome) welcome.remove();
-        hideTyping();                                   // remove the "Understanding..." indicator of the voice flow
 
         chatInner.appendChild(userMsg({ user: text, time: nowTime() }));
         input.value = "";
@@ -792,7 +779,7 @@ a.side-btn{ text-decoration:none; color:inherit; }
                 chatInner.appendChild(node);
                 updateStepper(data.state);
                 scrollBottom(true);
-                ensureAudio(data).then(function (file) { if (file) playAudio(file, node._listenBtn || null); });
+                if (data.audio) playAudio(data.audio, node._listenBtn || null);
             })
             .catch(function (e) {
                 console.error(e);
@@ -923,24 +910,7 @@ a.side-btn{ text-decoration:none; color:inherit; }
                 src.buffer = decoded; src.connect(off.destination); src.start();
                 return off.startRendering();
             });
-        }).then(function (rendered) { return encodeWav(trimSilence(rendered.getChannelData(0), 16000), 16000); });
-    }
-
-    // cut the quiet start and the 1.6 s waiting tail: less audio to upload and to understand
-    function trimSilence(samples, rate) {
-        var peak = 0, i;
-        for (i = 0; i < samples.length; i++) { var a = Math.abs(samples[i]); if (a > peak) peak = a; }
-        var limit = Math.max(0.006, peak * 0.06);
-        var first = -1, last = -1, win = Math.floor(rate * 0.02);
-        for (i = 0; i + win < samples.length; i += win) {
-            var sum = 0;
-            for (var j = i; j < i + win; j++) sum += Math.abs(samples[j]);
-            if (sum / win > limit) { if (first < 0) first = i; last = i + win; }
-        }
-        if (first < 0) return samples;
-        var start = Math.max(0, first - Math.floor(rate * 0.25));
-        var end = Math.min(samples.length, last + Math.floor(rate * 0.35));
-        return samples.subarray(start, end);
+        }).then(function (rendered) { return encodeWav(rendered.getChannelData(0), 16000); });
     }
 
     function uploadSpeech(wav) {
@@ -1019,18 +989,15 @@ a.side-btn{ text-decoration:none; color:inherit; }
 
                 micBusy = true;
                 micBtn.disabled = true;
-                var welcomeNode = $("welcome");
-                if (welcomeNode) welcomeNode.remove();
-                showTyping("ui_transcribing");           // visible progress in the chat right away
-                var tStart = Date.now();
+                input.value = "";
+                input.placeholder = t("ui_transcribing");
 
                 blobToWav16k(new Blob(chunks, { type: rec.mimeType || "audio/webm" }))
-                    .then(function (wav) { console.log("voice: prepared " + Math.round(wav.size / 1024) + " KB in " + (Date.now() - tStart) + " ms"); return uploadSpeech(wav); })
+                    .then(uploadSpeech)
                     .then(function (res) {
-                        console.log("voice: Gemini transcription " + (res.ms || "?") + " ms, total " + (Date.now() - tStart) + " ms");
                         var text = (res.text || "").trim();
                         if (!text) text = fallbackText.trim();
-                        if (!text) { hideTyping(); flashPlaceholder("ui_no_speech"); return; }
+                        if (!text) { flashPlaceholder("ui_no_speech"); return; }
                         input.value = text;
                         send(text);
                     })
@@ -1038,7 +1005,7 @@ a.side-btn{ text-decoration:none; color:inherit; }
                         console.log("Transcription error, using browser text:", e);
                         var text = fallbackText.trim();
                         if (text) { input.value = text; send(text); }
-                        else { hideTyping(); flashPlaceholder("ui_mic_error", 4200); }
+                        else { flashPlaceholder("ui_mic_error", 4200); }
                     })
                     .then(function () {
                         micBusy = false;
