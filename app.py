@@ -832,6 +832,34 @@ def emergency_card(language):
     return {"type": "emergency", "text": m(language, "emergency_go_now")}
 
 
+_tts_jobs = {}
+_tts_lock = threading.Lock()
+
+
+def start_tts(text, language):
+    """Make the spoken answer in the background so the text can appear immediately."""
+    import uuid
+    job_id = uuid.uuid4().hex[:12]
+    job = {"event": threading.Event(), "file": None}
+
+    def work():
+        try:
+            job["file"] = create_audio(text, language)
+        except Exception as e:
+            print("TTS failed:", type(e).__name__, e)
+        finally:
+            job["event"].set()
+
+    with _tts_lock:
+        _tts_jobs[job_id] = job
+        if len(_tts_jobs) > 300:
+            for old in list(_tts_jobs)[:100]:
+                _tts_jobs.pop(old, None)
+
+    threading.Thread(target=work, daemon=True).start()
+    return job_id
+
+
 def render_chat(reply, original_message, language, display=None, cards=None):
     """
     Shared tail of every answer.
@@ -842,13 +870,14 @@ def render_chat(reply, original_message, language, display=None, cards=None):
     """
     from datetime import datetime
 
-    audio_file = create_audio(reply, language)
+    audio_id = start_tts(reply, language)
     entry = {
         "user": original_message,
         "ai": reply,
         "display": display if display is not None else reply,
         "cards": cards or [],
-        "audio": audio_file,
+        "audio": None,
+        "audio_id": audio_id,
         "time": datetime.now().strftime("%H:%M")
     }
     chat_history.append(entry)
@@ -860,7 +889,7 @@ def render_chat(reply, original_message, language, display=None, cards=None):
         "index.html",
         chat_history=chat_history,
         language=language,
-        audio_file=audio_file
+        audio_file=None
     )
 
 
@@ -1402,6 +1431,7 @@ def speech_to_text(audio_path):
 # =====================================================================
 
 TRANSCRIBE_MODEL = "gemini-3.5-flash-lite"
+_FAST_TRANSCRIBE = True
 
 _SYMPTOM_WORDS = [
     "fever", "cough", "headache", "stomach pain", "chest pain", "breathing problem", "diarrhea",
@@ -1458,20 +1488,55 @@ def transcribe():
 
     language = request.form.get("language", "bn")
 
+    import time as _time
+    started = _time.time()
+    contents = [
+        build_transcribe_prompt(language),
+        types.Part.from_bytes(data=data, mime_type="audio/wav")
+    ]
+
+    global _FAST_TRANSCRIBE
     try:
-        response = client.models.generate_content(
-            model=TRANSCRIBE_MODEL,
-            contents=[
-                build_transcribe_prompt(language),
-                types.Part.from_bytes(data=data, mime_type="audio/wav")
-            ],
-            config=types.GenerateContentConfig(temperature=0)
-        )
-        return jsonify({"text": _clean_transcript(response.text)})
+        response = None
+        if _FAST_TRANSCRIBE:
+            try:
+                # no "thinking" and a short answer: much faster for plain transcription
+                response = client.models.generate_content(
+                    model=TRANSCRIBE_MODEL,
+                    contents=contents,
+                    config=types.GenerateContentConfig(
+                        temperature=0,
+                        max_output_tokens=500,
+                        thinking_config=types.ThinkingConfig(thinking_budget=0)
+                    )
+                )
+            except Exception as e:
+                print("Fast transcription settings not accepted, using normal settings:", type(e).__name__, e)
+                _FAST_TRANSCRIBE = False
+        if response is None:
+            response = client.models.generate_content(
+                model=TRANSCRIBE_MODEL,
+                contents=contents,
+                config=types.GenerateContentConfig(temperature=0)
+            )
+
+        ms = int((_time.time() - started) * 1000)
+        print(f"Transcription took {ms} ms for {len(data) // 1024} KB of audio")
+        return jsonify({"text": _clean_transcript(response.text), "ms": ms})
 
     except Exception as e:
         print("Gemini transcription failed:", type(e).__name__, e)
         return jsonify({"error": "failed", "text": ""}), 502
+
+
+@app.route("/audio/<job_id>")
+def audio_for(job_id):
+    """The page asks for the spoken answer; it waits here until the mp3 is ready."""
+    job = _tts_jobs.get(job_id)
+    if job is None:
+        return jsonify({"audio": None})
+    job["event"].wait(timeout=25)
+    return jsonify({"audio": job["file"]})
 
 
 @app.route("/history")
@@ -1483,7 +1548,8 @@ def history():
             "ai": c.get("ai", ""),
             "display": c.get("display", c.get("ai", "")),
             "cards": c.get("cards", []),
-            "audio": c.get("audio"),
+            "audio": c.get("audio") or (_tts_jobs.get(c.get("audio_id"), {}).get("file")),
+            "audio_id": c.get("audio_id"),
             "time": c.get("time", "")
         })
     return jsonify({

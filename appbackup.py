@@ -200,6 +200,7 @@ TURN_INTENTS = [
 
 STEP_HINTS = {
     "": "The conversation has not started yet.",
+    "report_offer": "The assistant just warned the user about an overcharge and asked whether they want to save an anonymous report (yes / no). A message such as 'yes, I want to report' is confirm_yes; 'no' or 'no thanks' is other.",
     "name": "The assistant just asked the user for their name.",
     "problem": "The assistant just asked the user to describe their health problem.",
     "blood_group": "The assistant just asked which blood group is needed.",
@@ -287,7 +288,7 @@ Normalized message (regional words replaced): __NORMALIZED__
 
 Known places: __PLACES__
 
-Known service items (for quoted_item): __ITEMS__
+Known service items (for quoted_item). Return exactly one of these KEYS; the lists show how people write them: __ITEMS__
 
 Disease database (key: keywords): __DB__
 """
@@ -298,7 +299,7 @@ Disease database (key: keywords): __DB__
         .replace("__NORMALIZED__", json.dumps(normalized_message, ensure_ascii=False))
         .replace("__PLACES__", json.dumps(places, ensure_ascii=False))
         .replace("__DB__", json.dumps(compact_db, ensure_ascii=False))
-        .replace("__ITEMS__", json.dumps(_known_items(), ensure_ascii=False))
+        .replace("__ITEMS__", json.dumps({k: ITEM_ALIASES.get(k, []) for k in _known_items()}, ensure_ascii=False))
     )
 
     try:
@@ -367,6 +368,8 @@ def _clean_interpretation(raw):
 
     # price-claim fields (only trusted if they look sane)
     quoted_item = raw.get("quoted_item")
+    if isinstance(quoted_item, str) and quoted_item not in _known_items():
+        quoted_item = find_item_in_text(quoted_item)      # Gemini wrote "CT" or "সিটি স্ক্যান": map it
     if not (isinstance(quoted_item, str) and quoted_item in _known_items()):
         quoted_item = None
 
@@ -539,6 +542,92 @@ BROKER_REPORTS_FILE = "data/broker_reports.json"
 _reports_lock = threading.Lock()
 
 
+# How patients may write each priced service (Bangla / English / Indonesian / typos).
+# Used (a) in the Gemini prompt, (b) to repair Gemini's answer, (c) by the no-Gemini fallback.
+ITEM_ALIASES = {
+    "ticket": ["ticket", "tiket", "টিকেট", "টিকিট", "টিকেটের", "pendaftaran", "registrasi", "registration", "রেজিস্ট্রেশন"],
+    "CBC": ["cbc", "সিবিসি", "complete blood count", "full blood count", "hitung darah lengkap", "darah lengkap"],
+    "Blood Test": ["blood test", "ব্লাড টেস্ট", "ব্লাড টেষ্ট", "রক্ত পরীক্ষা", "রক্তের পরীক্ষা", "tes darah", "cek darah", "pemeriksaan darah"],
+    "NS1 Antigen": ["ns1", "এনএস১", "এনএস ১", "এনএস-১", "এনএসওয়ান"],
+    "Urine R/E": ["urine r/e", "urine re", "urine test", "ইউরিন টেস্ট", "ইউরিন আর/ই", "প্রস্রাব পরীক্ষা", "প্রস্রাবের পরীক্ষা", "tes urine", "tes urin", "pemeriksaan urine", "urinalisis"],
+    "Urine Culture": ["urine culture", "ইউরিন কালচার", "কালচার", "kultur urin", "kultur urine"],
+    "ECG": ["ecg", "ekg", "ইসিজি", "ইকেজি", "rekam jantung"],
+    "X-Ray": ["x-ray", "xray", "x ray", "এক্স-রে", "এক্সরে", "এক্স রে", "এক্স–রে", "rontgen", "rongsen", "foto rontgen"],
+    "CT Scan": ["ct scan", "ctscan", "ct-scan", "ct", "সিটি স্ক্যান", "সিটি স্ক্যান", "সিটিস্ক্যান", "সিটি-স্ক্যান", "সিটি স্কান", "সিটি"],
+    "MRI": ["mri", "এমআরআই", "এম আর আই", "এমআরআই"],
+}
+
+
+def _norm(text):
+    import unicodedata
+    return unicodedata.normalize("NFC", str(text)).lower()
+
+
+def find_item_in_text(text):
+    """Return the priced service named in a message (longest alias wins), or None."""
+    t = _norm(text)
+    known = set(_known_items())
+    best, best_len = None, 0
+    for item, aliases in ITEM_ALIASES.items():
+        if item not in known:
+            continue
+        for alias in aliases:
+            a = _norm(alias)
+            if a.isascii():
+                found = re.search(r"(?<![a-z0-9])" + re.escape(a) + r"(?![a-z0-9])", t)
+            else:
+                found = a in t
+            if found and len(a) > best_len:
+                best, best_len = item, len(a)
+    return best
+
+
+def canon_item(value, original_message):
+    """A valid service key from Gemini's answer, else from the patient's own words, else None."""
+    if isinstance(value, str) and value in _known_items():
+        return value
+    return (find_item_in_text(value) if isinstance(value, str) else None) or find_item_in_text(original_message)
+
+
+def parse_amount_from_text(text):
+    """First number >= 10 in a message (understands Bangla digits and 1,500 / 150.000 / 1.5k)."""
+    t = _norm(text).translate(str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789"))
+    for token in re.findall(r"\d[\d,\.]*\s*(?:k|rb|ribu|হাজার)?(?![a-z])", t):
+        token = token.strip()
+        mult = 1
+        for suffix, factor in (("ribu", 1000), ("rb", 1000), ("হাজার", 1000), ("k", 1000)):
+            if token.endswith(suffix):
+                mult = factor
+                token = token[: -len(suffix)].strip()
+                break
+        digits = token.rstrip(".,")
+        if mult == 1 and re.fullmatch(r"\d{1,3}([.,]\d{3})+", digits):   # 150.000 or 1,500 -> thousands separators
+            digits = re.sub(r"[.,]", "", digits)
+        try:
+            value = float(digits.replace(",", "")) * mult
+        except ValueError:
+            continue
+        if value >= 10:
+            return value
+    return None
+
+
+def reply_to_report_offer(text, interp):
+    """Answer to 'report this anonymously? (yes / no)' -> 'yes', 'no' or None."""
+    tokens = [x for x in re.split(r"[\s\.,!?;:()\"'।]+", _norm(text)) if x]
+    no_words = {"no", "nope", "nah", "not", "na", "naa", "tidak", "nggak", "gak", "enggak", "jangan",
+                "non", "না", "নাহ", "থাক", "cancel", "dont", "don't"}
+    yes_words = {"yes", "y", "ya", "iya", "ok", "oke", "okay", "ji", "haan", "ha", "hya", "sure", "yep",
+                 "হ্যাঁ", "হ্যা", "হাঁ", "হা", "জি", "ঠিক", "laporkan", "lapor", "report", "রিপোর্ট", "laporan"}
+    if any(tk in no_words for tk in tokens):
+        return "no"
+    if any(tk in yes_words for tk in tokens):
+        return "yes"
+    if interp is not None and interp.get("intent") == "confirm_yes":
+        return "yes"
+    return None
+
+
 def _known_items():
     items = {"ticket"}
     for h in ALL_HOSPITALS:
@@ -620,35 +709,15 @@ def _num(value):
 
 def rule_based_price_claim(text):
     """Used only when Gemini is down: a number + a known service + an 'asking' word."""
-    t = str(text).lower()
-    bn_digits = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
-    t = t.translate(bn_digits)
-
-    asking = ["chai", "চাই", "চাইছে", "চাচ্ছে", "ask", "minta", "meminta", "bayar", "pay", "dalal", "দালাল", "calo", "taka", "টাকা", "rupiah", "rp"]
+    t = _norm(text)
+    asking = ["chai", "চাই", "চাইছে", "চাচ্ছে", "চাইল", "ask", "minta", "meminta", "bayar", "pay", "dalal",
+              "দালাল", "calo", "taka", "টাকা", "rupiah", "rp"]
     if not any(w in t for w in asking):
         return None
 
-    amount = None
-    for token in re.findall(r"\d[\d,\.]*", t):
-        try:
-            value = float(token.replace(",", ""))
-        except ValueError:
-            continue
-        if value >= 10:
-            amount = value
-            break
-    if amount is None:
-        return None
-
-    item = None
-    if any(w in t for w in ["ticket", "টিকেট", "টিকিট", "tiket", "pendaftaran"]):
-        item = "ticket"
-    else:
-        for name in _known_items():
-            if name != "ticket" and name.lower() in t:
-                item = name
-                break
-    if item is None:
+    amount = parse_amount_from_text(text)
+    item = find_item_in_text(text)
+    if amount is None or item is None:
         return None
 
     return {"item": item, "amount": amount, "place": None}
@@ -1323,6 +1392,88 @@ def speech_to_text(audio_path):
 
 
 
+# =====================================================================
+# SPEECH -> TEXT for the chat microphone
+# The page records the patient's voice and sends it here. Gemini listens to the
+# audio (much better with accents than the browser's built-in recognition) and
+# we give it our own vocabulary (tests, places, symptoms) to pick the right words.
+# If this fails, the page falls back to the browser's recognition.
+# Change TRANSCRIBE_MODEL if you want a stronger model for audio.
+# =====================================================================
+
+TRANSCRIBE_MODEL = "gemini-3.5-flash-lite"
+
+_SYMPTOM_WORDS = [
+    "fever", "cough", "headache", "stomach pain", "chest pain", "breathing problem", "diarrhea",
+    "vomiting", "snake bite", "dengue", "stroke", "allergy", "back pain", "sore throat", "bleeding",
+    "constipation", "red eye", "fainting", "burning urine", "blood", "donor", "ticket",
+    "dalal", "calo", "broker", "hospital", "O positive", "A positive", "B positive", "AB positive",
+    "O negative", "A negative", "B negative", "AB negative",
+]
+
+
+def build_transcribe_prompt(language):
+    names = {"bn": "Bangla", "en": "English", "fr": "French", "id": "Indonesian"}
+    vocab = _known_items() + _known_places()[:60] + _SYMPTOM_WORDS
+    return (
+        "You are the speech-to-text engine of SasthoBondhu AI, a health navigator used by patients "
+        "in Bangladesh and Indonesia.\\n"
+        "Transcribe the audio exactly as spoken.\\n"
+        f"- The expected language is {names.get(language, 'English')}, but the speaker may use another "
+        "language or mix languages. Write each word in the language it was spoken: English in English "
+        "letters, Bangla in Bangla script, Indonesian in Indonesian.\\n"
+        "- The speaker may have a Bangladeshi, Indian or Indonesian accent and may not be a native speaker. "
+        "Use the health context to choose the most plausible words, but never invent or add words that "
+        "were not said.\\n"
+        "- Do not translate. Do not answer. Do not add explanations, quotes or labels.\\n"
+        "- Write numbers as digits (4000, not four thousand).\\n"
+        "- If there is no intelligible speech, output exactly: [no_speech]\\n"
+        "Words that may appear: " + ", ".join(vocab)
+    )
+
+
+def _clean_transcript(text):
+    text = (text or "").strip().strip('"').strip("'").strip()
+    for label in ("Transcript:", "Transcription:", "transcript:"):
+        if text.startswith(label):
+            text = text[len(label):].strip()
+    if "[no_speech]" in text.lower() or text.lower() in ("no_speech", "no speech", "silence"):
+        return ""
+    return text
+
+
+@app.route("/transcribe", methods=["POST"])
+def transcribe():
+    client = get_gemini_client()
+    if client is None:
+        return jsonify({"error": "no_gemini", "text": ""}), 503
+
+    audio = request.files.get("audio")
+    if audio is None:
+        return jsonify({"error": "no_audio", "text": ""}), 400
+
+    data = audio.read()
+    if len(data) < 2000 or len(data) > 8_000_000:
+        return jsonify({"error": "bad_size", "text": ""}), 400
+
+    language = request.form.get("language", "bn")
+
+    try:
+        response = client.models.generate_content(
+            model=TRANSCRIBE_MODEL,
+            contents=[
+                build_transcribe_prompt(language),
+                types.Part.from_bytes(data=data, mime_type="audio/wav")
+            ],
+            config=types.GenerateContentConfig(temperature=0)
+        )
+        return jsonify({"text": _clean_transcript(response.text)})
+
+    except Exception as e:
+        print("Gemini transcription failed:", type(e).__name__, e)
+        return jsonify({"error": "failed", "text": ""}), 502
+
+
 @app.route("/history")
 def history():
     items = []
@@ -1399,7 +1550,8 @@ def home():
     step = user_data.get("step", "") if active else ""
 
     # ONE Gemini call per turn (None => old rule-based logic below)
-    interp = gemini_interpret_turn(original_message, user_message, step, language)
+    hint_step = "report_offer" if user_data.get("pending_report") else step
+    interp = gemini_interpret_turn(original_message, user_message, hint_step, language)
 
     # ------------------------------------------------------------ greeting
     if interp is not None:
@@ -1427,27 +1579,27 @@ def home():
     # (works at any point of the conversation; does not change the current step)
     pending = user_data.get("pending_report")
     if pending:
-        said_yes_now = (
-            (interp is not None and interp["intent"] == "confirm_yes")
-            or lower_message.strip(" .!") in YES_WORDS
-        )
+        answer = reply_to_report_offer(original_message, interp)
         user_data.pop("pending_report", None)
-        if said_yes_now:
+        if answer == "yes":
             save_broker_report(pending)
             return render_chat(m(language, "price_reported"), original_message, language)
-        if lower_message.strip(" .!") in NO_WORDS:
+        if answer == "no":
             return render_chat(m(language, "price_declined"), original_message, language)
         # anything else: the offer is dropped and the message is handled normally below
 
     new_claim = None
     if interp is not None:
         if interp["intent"] == "overcharge_report":
-            new_claim = {"item": interp.get("quoted_item"), "amount": interp.get("quoted_amount"),
+            new_claim = {"item": canon_item(interp.get("quoted_item"), original_message),
+                         "amount": interp.get("quoted_amount") or parse_amount_from_text(original_message),
                          "place": interp.get("place")}
-        elif user_data.get("claim") and (interp.get("quoted_item") or interp.get("quoted_amount") or interp.get("place")):
-            # patient is answering our "which service / which hospital?" question
-            new_claim = {"item": interp.get("quoted_item"), "amount": interp.get("quoted_amount"),
-                         "place": interp.get("place")}
+        elif user_data.get("claim"):
+            # patient may be answering our "which service / how much / which hospital?" question
+            item_now = canon_item(interp.get("quoted_item"), original_message)
+            amount_now = interp.get("quoted_amount") or parse_amount_from_text(original_message)
+            if item_now or amount_now or interp.get("place"):
+                new_claim = {"item": item_now, "amount": amount_now, "place": interp.get("place")}
     else:
         new_claim = rule_based_price_claim(original_message)
         if new_claim is None and user_data.get("claim"):
