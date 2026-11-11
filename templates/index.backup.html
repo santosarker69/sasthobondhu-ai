@@ -33,6 +33,7 @@ try {
     --danger:#F43F5E; --danger-bg:#3A0F1B; --danger-text:#FDA4AF;
     --warn-bg:#412402; --warn-text:#FAC775;
     --bubble-bot:#111B2E;
+    --ok:#34D399; --ok-bg:#052E2B;
     --glow1:rgba(20,184,166,.16); --glow2:rgba(59,130,246,.14);
     --glow:0 0 0 1px rgba(34,211,238,.25), 0 0 28px rgba(34,211,238,.12);
     --glow-soft:rgba(34,211,238,.35); --glow-strong:rgba(34,211,238,.35);
@@ -49,6 +50,7 @@ try {
     --danger:#E11D48; --danger-bg:#FFE4E8; --danger-text:#9F1239;
     --warn-bg:#FAEEDA; --warn-text:#633806;
     --bubble-bot:#FFFFFF;
+    --ok:#0F766E; --ok-bg:#CCFBF1;
     --glow1:rgba(20,184,166,.18); --glow2:rgba(59,130,246,.12);
     --glow:0 0 0 3px rgba(8,145,178,.12);
     --glow-soft:rgba(8,145,178,.25); --glow-strong:rgba(20,184,166,.25);
@@ -220,6 +222,24 @@ table.tests{ width:100%; border-collapse:collapse; font-size:14px; }
     border:1px solid var(--accent-border); color:var(--accent); white-space:nowrap;
 }
 .call:hover{ background:var(--accent-ring); }
+.card.price_check.v-over{ border-color:var(--danger); }
+.card.price_check.v-high{ border-color:var(--warn-text); }
+.card.price_check.v-fair{ border-color:var(--ok); }
+.pill{ display:inline-block; padding:3px 11px; border-radius:999px; font-size:12px; font-weight:700; white-space:nowrap; }
+.pill.v-fair{ background:var(--ok-bg); color:var(--ok); }
+.pill.v-high{ background:var(--warn-bg); color:var(--warn-text); }
+.pill.v-over{ background:var(--danger-bg); color:var(--danger-text); }
+.pc-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+.pc-box{ background:var(--surface2); border-radius:12px; padding:12px 14px; }
+.pc-box small{ display:block; color:var(--muted); font-size:11.5px; }
+.pc-box b{ display:block; font-size:22px; font-weight:700; line-height:1.35; overflow-wrap:anywhere; }
+.pc-box.asked.v-over b{ color:var(--danger); }
+.pc-box.asked.v-high b{ color:var(--warn-text); }
+.pc-box.asked.v-fair b{ color:var(--ok); }
+.pc-box.real b{ color:var(--accent); }
+.pc-times{ margin-top:10px; font-size:13px; color:var(--muted); }
+.pc-times b{ color:var(--danger); font-size:15px; }
+a.side-btn{ text-decoration:none; color:inherit; }
 .card.emergency{ background:var(--danger-bg); border-color:var(--danger); color:var(--danger-text); display:flex; gap:12px; align-items:flex-start; }
 .card.emergency b{ display:block; font-size:14px; margin-bottom:2px; }
 .card.emergency p{ white-space:pre-wrap; font-size:14px; }
@@ -305,6 +325,10 @@ table.tests{ width:100%; border-collapse:collapse; font-size:14px; }
         </div>
 
         <div class="side-actions">
+            <a class="side-btn" href="/dashboard" target="_blank" rel="noopener">
+                <span class="ic" data-icon="chart"></span>
+                <span data-i18n="ui_dashboard">Dashboard</span>
+            </a>
             <button class="side-btn" id="hotlineBtn" type="button">
                 <span class="ic" data-icon="phone"></span>
                 <span>Hotline</span>
@@ -378,7 +402,8 @@ table.tests{ width:100%; border-collapse:collapse; font-size:14px; }
         alert: '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/>',
         user: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
         drop: '<path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>',
-        check: '<path d="M20 6L9 17l-5-5"/>'
+        check: '<path d="M20 6L9 17l-5-5"/>',
+        chart: '<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/>'
     };
 
     function icon(name, size) {
@@ -578,6 +603,37 @@ table.tests{ width:100%; border-collapse:collapse; font-size:14px; }
                 row.appendChild(call);
                 card.appendChild(row);
             });
+
+        } else if (c.type === "price_check") {
+            card.classList.add("v-" + (c.verdict === "overcharge" ? "over" : c.verdict));
+            var h4 = el("div", "card-head");
+            var l4 = el("div");
+            l4.appendChild(el("div", "eyebrow", t("ui_card_price_check")));
+            l4.appendChild(el("div", "card-title", c.item + " \u00b7 " + c.hospital));
+            h4.appendChild(l4);
+            var vkey = { fair: "ui_verdict_fair", high: "ui_verdict_high", overcharge: "ui_verdict_over" }[c.verdict];
+            var pill = el("span", "pill v-" + (c.verdict === "overcharge" ? "over" : c.verdict), t(vkey));
+            pill.style.marginLeft = "auto";
+            h4.appendChild(pill);
+            card.appendChild(h4);
+
+            var vcls = "v-" + (c.verdict === "overcharge" ? "over" : c.verdict);
+            var grid = el("div", "pc-grid");
+            var b1 = el("div", "pc-box asked " + vcls); b1.appendChild(el("small", null, t("ui_card_asked"))); b1.appendChild(el("b", null, c.quoted));
+            var b2 = el("div", "pc-box real"); b2.appendChild(el("small", null, t("ui_card_real"))); b2.appendChild(el("b", null, c.official));
+            grid.appendChild(b1); grid.appendChild(b2); card.appendChild(grid);
+
+            if (c.verdict !== "fair") {
+                var tm = el("div", "pc-times");
+                var tb = el("b", null, "\u00d7" + c.times);
+                tm.appendChild(tb); tm.appendChild(document.createTextNode(" " + t("ui_times_higher")));
+                card.appendChild(tm);
+            }
+            if (c.where) {
+                var kv2 = el("div", "kv");
+                var w = el("div"); w.appendChild(el("small", null, t("ui_card_go_to"))); w.appendChild(el("b", null, c.where));
+                kv2.appendChild(w); card.appendChild(kv2);
+            }
 
         } else if (c.type === "emergency") {
             var ic = el("span"); ic.innerHTML = icon("alert", 22);

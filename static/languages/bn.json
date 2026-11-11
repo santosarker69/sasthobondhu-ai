@@ -63,5 +63,8 @@
     "ui_verdict_fair": "ন্যায্য দাম",
     "ui_verdict_high": "সামান্য বেশি",
     "ui_verdict_over": "অতিরিক্ত চার্জ",
-    "ui_times_higher": "গুণ বেশি"
+    "ui_times_higher": "গুণ বেশি",
+    "ui_transcribing": "বুঝে নিচ্ছি...",
+    "ui_no_speech": "কিছু শোনা যায়নি, আবার বলুন।",
+    "ui_mic_error": "মাইক ব্যবহারের অনুমতি দিন অথবা আবার চেষ্টা করুন।"
 }

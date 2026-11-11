@@ -7,10 +7,11 @@ from pydub import AudioSegment
 import os
 from dotenv import load_dotenv
 import re
+import threading
 from i18n import (
     SUPPORTED_LANGUAGES, SHOW_DEMO_NOTE, norm_lang, m,
     GREETING_WORDS, BANGLA_GREETINGS, NAME_PREFIXES, TEST_WORDS,
-    NEXT_WORDS, ADMISSION_WORDS, YES_WORDS,
+    NEXT_WORDS, ADMISSION_WORDS, YES_WORDS, NO_WORDS, item_label,
     format_price, hospital_name, ticket_location, test_location
 )
 load_dotenv()
@@ -194,7 +195,7 @@ VALID_BLOOD_GROUPS = {"A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"}
 TURN_INTENTS = [
     "greeting", "give_name", "describe_problem", "blood_request",
     "give_blood_group", "give_place", "ask_test", "ask_next",
-    "ask_admission", "confirm_yes", "other"
+    "ask_admission", "confirm_yes", "overcharge_report", "other"
 ]
 
 STEP_HINTS = {
@@ -255,6 +256,9 @@ Choose exactly one intent:
 - ask_next: the user says tests are done, asks about the report, or asks what to do next.
 - ask_admission: the user asks about admission / being admitted / the doctor said admit.
 - confirm_yes: the user agrees (yes, ha, ji, haan, ya, iya, oke, ok, thik ache ...).
+- overcharge_report: the user says someone (a broker / dalal / calo, a staff member or the
+  hospital) asked them to pay money for a service, a test or a ticket, or asks whether a
+  price they were quoted is fair. Use this even if they also name a hospital or place.
 - other: anything else.
 
 Also extract (use null / empty when absent):
@@ -268,14 +272,22 @@ Also extract (use null / empty when absent):
 - place: if the user mentions a place, return the best match from the known places
   list below (fix spelling, translate Bangla/Banglish to the English name in the list).
   If it is clearly a place but not in the list, return it as written. null if no place.
+- quoted_item: only for overcharge_report. 'ticket' for the hospital entry ticket /
+  registration / appointment ticket (টিকেট, tiket, pendaftaran). Otherwise the matching
+  name from the known service items below. null if unclear.
+- quoted_amount: only for overcharge_report. The money amount they were asked to pay, as a
+  plain number in whole currency units (convert "1.5k", "150 ribu", "দেড় হাজার",
+  "seratus lima puluh ribu" to 1500 / 150000 / 1500 / 150000). null if no amount.
 
 Return JSON only, exactly in this shape:
-{"intent": "...", "name": null, "disease_keys": [], "blood_group": null, "place": null}
+{"intent": "...", "name": null, "disease_keys": [], "blood_group": null, "place": null, "quoted_item": null, "quoted_amount": null}
 
 ORIGINAL message: __ORIGINAL__
 Normalized message (regional words replaced): __NORMALIZED__
 
 Known places: __PLACES__
+
+Known service items (for quoted_item): __ITEMS__
 
 Disease database (key: keywords): __DB__
 """
@@ -286,6 +298,7 @@ Disease database (key: keywords): __DB__
         .replace("__NORMALIZED__", json.dumps(normalized_message, ensure_ascii=False))
         .replace("__PLACES__", json.dumps(places, ensure_ascii=False))
         .replace("__DB__", json.dumps(compact_db, ensure_ascii=False))
+        .replace("__ITEMS__", json.dumps(_known_items(), ensure_ascii=False))
     )
 
     try:
@@ -352,12 +365,27 @@ def _clean_interpretation(raw):
     else:
         place = None
 
+    # price-claim fields (only trusted if they look sane)
+    quoted_item = raw.get("quoted_item")
+    if not (isinstance(quoted_item, str) and quoted_item in _known_items()):
+        quoted_item = None
+
+    quoted_amount = raw.get("quoted_amount")
+    try:
+        quoted_amount = float(str(quoted_amount).replace(",", "")) if quoted_amount is not None else None
+    except ValueError:
+        quoted_amount = None
+    if quoted_amount is not None and not (0 < quoted_amount < 1_000_000_000):
+        quoted_amount = None
+
     return {
         "intent": intent,
         "name": name,
         "disease_keys": keys,
         "blood_group": blood_group,
-        "place": place
+        "place": place,
+        "quoted_item": quoted_item,
+        "quoted_amount": quoted_amount
     }
 
 
@@ -496,6 +524,222 @@ def build_additional_problem_reply(new_keys, language):
         lines.append(m(language, "same_hospital_note", hospital=hospital_name(hospital, language)))
 
     return "\n".join(lines)
+
+
+
+# =====================================================================
+# FAIR PRICE CHECK + ANONYMOUS BROKER REPORTS
+# The patient says "a broker asked me 1500 for a CBC test". We compare with the
+# real price in our data, warn if it is too high and (optionally) save an
+# anonymous report. Reports feed the "broker hotspots" panel on /dashboard.
+# No name, phone number or free text is ever stored.
+# =====================================================================
+
+BROKER_REPORTS_FILE = "data/broker_reports.json"
+_reports_lock = threading.Lock()
+
+
+def _known_items():
+    items = {"ticket"}
+    for h in ALL_HOSPITALS:
+        items.update(h.get("tests", {}).keys())
+    return ["ticket"] + sorted(items - {"ticket"})
+
+
+def load_broker_reports():
+    try:
+        with open(BROKER_REPORTS_FILE, "r", encoding="utf-8") as file:
+            return json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return []
+
+
+def save_broker_report(entry):
+    """Append one anonymous report (thread-safe, atomic write)."""
+    from datetime import datetime
+    with _reports_lock:
+        reports = load_broker_reports()
+        entry = dict(entry)
+        entry["id"] = f"R{len(reports) + 1:03d}"
+        entry["time"] = datetime.now().isoformat(timespec="minutes")
+        entry["demo"] = False
+        reports.append(entry)
+        tmp = BROKER_REPORTS_FILE + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as file:
+            json.dump(reports, file, ensure_ascii=False, indent=2)
+        os.replace(tmp, BROKER_REPORTS_FILE)
+    return entry
+
+
+def broker_stats():
+    """Numbers for the dashboard 'broker hotspots' panel."""
+    reports = load_broker_reports()
+    stats = {"total": len(reports), "real": sum(1 for r in reports if not r.get("demo")),
+             "has_demo": any(r.get("demo") for r in reports),
+             "avg_times": 0, "excess": {}, "hospitals": [], "top_items": [], "recent": []}
+    if not reports:
+        return stats
+
+    stats["avg_times"] = round(sum(r.get("times", 0) for r in reports) / len(reports), 1)
+
+    for r in reports:
+        cur = r.get("currency", "BDT")
+        stats["excess"][cur] = stats["excess"].get(cur, 0) + max(0, r.get("quoted", 0) - r.get("official", 0))
+
+    by_hospital = {}
+    for r in reports:
+        row = by_hospital.setdefault(r["hospital"], {"hospital": r["hospital"], "district": r.get("district", ""),
+                                                      "count": 0, "times_sum": 0, "items": {}})
+        row["count"] += 1
+        row["times_sum"] += r.get("times", 0)
+        row["items"][r["item"]] = row["items"].get(r["item"], 0) + 1
+    rows = []
+    for row in by_hospital.values():
+        row["avg_times"] = round(row["times_sum"] / row["count"], 1)
+        row["top_item"] = max(row["items"], key=row["items"].get)
+        rows.append(row)
+    rows.sort(key=lambda r: (-r["count"], -r["avg_times"]))
+    top = rows[0]["count"]
+    for row in rows:
+        row["pct"] = round(100 * row["count"] / top)
+    stats["hospitals"] = rows[:8]
+
+    by_item = {}
+    for r in reports:
+        by_item[r["item"]] = by_item.get(r["item"], 0) + 1
+    stats["top_items"] = sorted(by_item.items(), key=lambda kv: -kv[1])[:6]
+
+    stats["recent"] = sorted(reports, key=lambda r: r.get("time", ""), reverse=True)[:6]
+    return stats
+
+
+def _num(value):
+    """1500.0 -> 1500 (cleaner to print)"""
+    return int(value) if float(value).is_integer() else round(float(value), 1)
+
+
+def rule_based_price_claim(text):
+    """Used only when Gemini is down: a number + a known service + an 'asking' word."""
+    t = str(text).lower()
+    bn_digits = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
+    t = t.translate(bn_digits)
+
+    asking = ["chai", "চাই", "চাইছে", "চাচ্ছে", "ask", "minta", "meminta", "bayar", "pay", "dalal", "দালাল", "calo", "taka", "টাকা", "rupiah", "rp"]
+    if not any(w in t for w in asking):
+        return None
+
+    amount = None
+    for token in re.findall(r"\d[\d,\.]*", t):
+        try:
+            value = float(token.replace(",", ""))
+        except ValueError:
+            continue
+        if value >= 10:
+            amount = value
+            break
+    if amount is None:
+        return None
+
+    item = None
+    if any(w in t for w in ["ticket", "টিকেট", "টিকিট", "tiket", "pendaftaran"]):
+        item = "ticket"
+    else:
+        for name in _known_items():
+            if name != "ticket" and name.lower() in t:
+                item = name
+                break
+    if item is None:
+        return None
+
+    return {"item": item, "amount": amount, "place": None}
+
+
+def price_check_result(hospital, item, amount, language):
+    """Compare a quoted price with the real one. Returns (reply, cards, pending_report) or None."""
+    if item == "ticket":
+        official = hospital.get("ticket", {}).get("price")
+        where = ticket_location(hospital, language)
+    else:
+        test_info = hospital.get("tests", {}).get(item)
+        official = test_info.get("price") if test_info else None
+        where = test_location(test_info, language) if test_info else ""
+
+    if not isinstance(official, (int, float)) or official <= 0:
+        return None
+
+    ratio = amount / official
+    if ratio <= 1.1:
+        verdict, key = "fair", "price_fair"
+    elif ratio <= 1.5:
+        verdict, key = "high", "price_high"
+    else:
+        verdict, key = "overcharge", "price_over"
+
+    label = item_label(item, language)
+    hname = hospital_name(hospital, language)
+    times = round(ratio, 1)
+
+    reply = m(language, key, item=label, hospital=hname,
+              official=format_price(_num(official), hospital, language),
+              quoted=format_price(_num(amount), hospital, language),
+              times=times, where=where)
+
+    card = {
+        "type": "price_check", "item": label, "hospital": hname, "verdict": verdict,
+        "quoted": format_price(_num(amount), hospital, language),
+        "official": format_price(_num(official), hospital, language),
+        "times": times, "where": where,
+        "demo": bool(SHOW_DEMO_NOTE and hospital.get("demo"))
+    }
+
+    pending = None
+    if verdict != "fair":
+        reply += "\n\n" + m(language, "price_report_ask")
+        pending = {
+            "hospital": hospital.get("name_en") or hospital.get("name", ""),
+            "district": hospital.get("district", ""), "country": hospital.get("country", "BD"),
+            "item": item, "quoted": _num(amount), "official": _num(official), "times": times,
+            "currency": hospital.get("currency", "BDT"), "verdict": verdict
+        }
+    return reply, [card], pending
+
+
+def handle_price_claim(new_info, original_message, language):
+    """
+    Merge what the patient just said into user_data["claim"] (item, amount, place).
+    Ask for whatever is still missing, otherwise run the price check.
+    Returns a rendered response.
+    """
+    claim = user_data.get("claim") or {}
+    for key in ("item", "amount", "place"):
+        if new_info.get(key) not in (None, ""):
+            claim[key] = new_info[key]
+    user_data["claim"] = claim
+
+    hospital = None
+    if claim.get("place"):
+        hospital = resolve_hospital(claim["place"])
+    if hospital is None:
+        hospital = resolve_hospital(original_message) or user_data.get("hospital_data")
+
+    if not claim.get("item") or not claim.get("amount"):
+        return render_chat(m(language, "price_need_info"), original_message, language)
+
+    if hospital is None:
+        return render_chat(m(language, "price_need_hospital"), original_message, language)
+
+    user_data.pop("claim", None)
+    result = price_check_result(hospital, claim["item"], claim["amount"], language)
+
+    if result is None:
+        reply = m(language, "price_unknown_item", item=item_label(claim["item"], language),
+                  hospital=hospital_name(hospital, language))
+        return render_chat(reply, original_message, language)
+
+    reply, cards, pending = result
+    if pending:
+        user_data["pending_report"] = pending
+    return render_chat(reply, original_message, language, reply, cards)
 
 
 def ui_state():
@@ -1107,6 +1351,8 @@ def reset_chat():
         "location": "", "problems": [], "name_tries": 0
     })
     user_data.pop("hospital_data", None)
+    user_data.pop("pending_report", None)
+    user_data.pop("claim", None)
     return jsonify({"ok": True})
 
 
@@ -1173,7 +1419,45 @@ def home():
         user_data["problems"] = []
         user_data["location"] = ""
         user_data.pop("hospital_data", None)
+        user_data.pop("pending_report", None)
+        user_data.pop("claim", None)
         return render_chat(m(language, "ask_name"), original_message, language)
+
+    # ------------------------------------------------------------ fair price check / broker report
+    # (works at any point of the conversation; does not change the current step)
+    pending = user_data.get("pending_report")
+    if pending:
+        said_yes_now = (
+            (interp is not None and interp["intent"] == "confirm_yes")
+            or lower_message.strip(" .!") in YES_WORDS
+        )
+        user_data.pop("pending_report", None)
+        if said_yes_now:
+            save_broker_report(pending)
+            return render_chat(m(language, "price_reported"), original_message, language)
+        if lower_message.strip(" .!") in NO_WORDS:
+            return render_chat(m(language, "price_declined"), original_message, language)
+        # anything else: the offer is dropped and the message is handled normally below
+
+    new_claim = None
+    if interp is not None:
+        if interp["intent"] == "overcharge_report":
+            new_claim = {"item": interp.get("quoted_item"), "amount": interp.get("quoted_amount"),
+                         "place": interp.get("place")}
+        elif user_data.get("claim") and (interp.get("quoted_item") or interp.get("quoted_amount") or interp.get("place")):
+            # patient is answering our "which service / which hospital?" question
+            new_claim = {"item": interp.get("quoted_item"), "amount": interp.get("quoted_amount"),
+                         "place": interp.get("place")}
+    else:
+        new_claim = rule_based_price_claim(original_message)
+        if new_claim is None and user_data.get("claim"):
+            place_guess = resolve_hospital(original_message)
+            if place_guess:
+                new_claim = {"item": None, "amount": None, "place": place_guess["district"]}
+
+    if new_claim is not None:
+        return handle_price_claim(new_claim, original_message, language)
+    user_data.pop("claim", None)
 
     # ------------------------------------------------------------ name
     if active and step == "name":
@@ -2032,7 +2316,8 @@ def dashboard():
         top_district=top_district,
         district_stats=district_stats,
         top_disease=top_disease,
-        disease_rows=disease_rows
+        disease_rows=disease_rows,
+        broker=broker_stats()
     )
 
 @app.route("/set-language", methods=["POST"])

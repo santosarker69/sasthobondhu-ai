@@ -63,5 +63,8 @@
     "ui_verdict_fair": "Fair price",
     "ui_verdict_high": "A bit high",
     "ui_verdict_over": "Overcharged",
-    "ui_times_higher": "times higher"
+    "ui_times_higher": "times higher",
+    "ui_transcribing": "Understanding...",
+    "ui_no_speech": "I did not hear anything, please try again.",
+    "ui_mic_error": "Please allow the microphone or try again."
 }

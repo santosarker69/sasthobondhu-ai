@@ -63,5 +63,8 @@
     "ui_verdict_fair": "Harga wajar",
     "ui_verdict_high": "Agak tinggi",
     "ui_verdict_over": "Harga berlebihan",
-    "ui_times_higher": "kali lipat"
+    "ui_times_higher": "kali lipat",
+    "ui_transcribing": "Memproses suara...",
+    "ui_no_speech": "Tidak terdengar apa-apa, coba lagi.",
+    "ui_mic_error": "Izinkan mikrofon atau coba lagi."
 }

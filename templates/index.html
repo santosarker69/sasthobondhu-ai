@@ -272,7 +272,7 @@ a.side-btn{ text-decoration:none; color:inherit; }
 .mic{ background:var(--surface2); color:var(--accent); }
 .mic.listening{ background:var(--danger); color:#fff; animation:pulse 1.4s infinite; }
 .send{ background:linear-gradient(135deg, var(--primary), var(--primary2)); color:var(--primary-ink); }
-.send:disabled{ opacity:.5; cursor:progress; transform:none; }
+.send:disabled, .mic:disabled{ opacity:.5; cursor:progress; transform:none; }
 
 /* modal */
 .modal{ position:fixed; inset:0; background:rgba(2,8,20,.62); display:none; align-items:center; justify-content:center; z-index:100; padding:20px; }
@@ -808,7 +808,7 @@ a.side-btn{ text-decoration:none; color:inherit; }
         input.placeholder = on ? t("ui_listening") : t("input_placeholder");
     }
 
-    function startListening() {
+    function startBrowserRecognition() {   // old method, used only if recording is not possible
         if (micActive) {
             try { recognition.abort(); } catch (e) {}
             setListening(false);
@@ -872,6 +872,174 @@ a.side-btn{ text-decoration:none; color:inherit; }
             finish();
         };
         try { recognition.start(); } catch (e) { console.log("Recognition start error:", e); finish(); }
+    }
+
+    /* ---------------- microphone v2: record -> Gemini transcribes (good with accents) ---------------- */
+    var micBusy = false, micCtl = null;
+
+    function flashPlaceholder(key, ms) {
+        input.placeholder = t(key);
+        setTimeout(function () { if (!micActive && !micBusy) input.placeholder = t("input_placeholder"); }, ms || 2600);
+    }
+
+    function encodeWav(samples, rate) {
+        var buffer = new ArrayBuffer(44 + samples.length * 2);
+        var view = new DataView(buffer);
+        function str(off, text) { for (var i = 0; i < text.length; i++) view.setUint8(off + i, text.charCodeAt(i)); }
+        str(0, "RIFF"); view.setUint32(4, 36 + samples.length * 2, true); str(8, "WAVE"); str(12, "fmt ");
+        view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
+        view.setUint32(24, rate, true); view.setUint32(28, rate * 2, true); view.setUint16(32, 2, true); view.setUint16(34, 16, true);
+        str(36, "data"); view.setUint32(40, samples.length * 2, true);
+        for (var i = 0; i < samples.length; i++) {
+            var x = Math.max(-1, Math.min(1, samples[i]));
+            view.setInt16(44 + i * 2, x < 0 ? x * 0x8000 : x * 0x7FFF, true);
+        }
+        return new Blob([view], { type: "audio/wav" });
+    }
+
+    // any recorded format -> 16 kHz mono WAV (a format Gemini always accepts)
+    function blobToWav16k(blob) {
+        var AC = window.AudioContext || window.webkitAudioContext;
+        return blob.arrayBuffer().then(function (ab) {
+            var dctx = new AC();
+            return dctx.decodeAudioData(ab).then(function (decoded) {
+                dctx.close();
+                var rate = 16000;
+                var off = new OfflineAudioContext(1, Math.max(1, Math.ceil(decoded.duration * rate)), rate);
+                var src = off.createBufferSource();
+                src.buffer = decoded; src.connect(off.destination); src.start();
+                return off.startRendering();
+            });
+        }).then(function (rendered) { return encodeWav(rendered.getChannelData(0), 16000); });
+    }
+
+    function uploadSpeech(wav) {
+        var fd = new FormData();
+        fd.append("audio", wav, "speech.wav");
+        fd.append("language", state.lang);
+        return fetch("/transcribe", { method: "POST", body: fd }).then(function (r) {
+            if (!r.ok) throw new Error("HTTP " + r.status);
+            return r.json();
+        });
+    }
+
+    function startListening() {
+        if (micBusy) return;
+        if (micActive) { if (micCtl) micCtl.finish(true); return; }
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder ||
+            !(window.AudioContext || window.webkitAudioContext)) {
+            startBrowserRecognition();
+            return;
+        }
+        navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true } })
+            .then(beginRecording)
+            .catch(function (e) { console.log("Microphone error:", e); flashPlaceholder("ui_mic_error", 4200); });
+    }
+
+    function beginRecording(stream) {
+        var AC = window.AudioContext || window.webkitAudioContext;
+        var ctx = new AC();
+        var analyser = ctx.createAnalyser();
+        analyser.fftSize = 1024;
+        ctx.createMediaStreamSource(stream).connect(analyser);
+        var level = new Float32Array(analyser.fftSize);
+
+        var rec;
+        try { rec = new MediaRecorder(stream); }
+        catch (e) { stream.getTracks().forEach(function (tr) { tr.stop(); }); ctx.close(); startBrowserRecognition(); return; }
+        var chunks = [];
+        rec.ondataavailable = function (e) { if (e.data && e.data.size) chunks.push(e.data); };
+
+        // browser recognition runs at the same time: live preview + backup if Gemini is unreachable
+        var fallbackText = "", sr = null;
+        var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        var langMap = { en: "en-IN", fr: "fr-FR", id: "id-ID", bn: "bn-BD" };
+        if (SR) {
+            try {
+                sr = new SR();
+                sr.lang = langMap[state.lang] || "bn-BD";
+                sr.continuous = true; sr.interimResults = false;
+                sr.onresult = function (ev) {
+                    for (var i = ev.resultIndex; i < ev.results.length; i++) {
+                        if (ev.results[i].isFinal) fallbackText += ev.results[i][0].transcript + " ";
+                    }
+                    if (micActive) input.value = fallbackText.trim();
+                };
+                sr.onerror = function () {};
+                sr.onend = function () { if (micActive) { try { sr.start(); } catch (e) {} } };
+                sr.start();
+            } catch (e) { sr = null; }
+        }
+
+        var startedAt = Date.now(), lastVoice = 0, spoke = false, done = false;
+        var floor = [], threshold = 0.02;
+
+        function finish(manual) {
+            if (done) return;
+            done = true;
+            clearInterval(timer);
+            setListening(false);
+            try { if (sr) sr.stop(); } catch (e) {}
+            micCtl = null;
+
+            rec.onstop = function () {
+                stream.getTracks().forEach(function (tr) { tr.stop(); });
+                ctx.close();
+                if (!spoke) { input.value = ""; flashPlaceholder("ui_no_speech"); return; }
+
+                micBusy = true;
+                micBtn.disabled = true;
+                input.value = "";
+                input.placeholder = t("ui_transcribing");
+
+                blobToWav16k(new Blob(chunks, { type: rec.mimeType || "audio/webm" }))
+                    .then(uploadSpeech)
+                    .then(function (res) {
+                        var text = (res.text || "").trim();
+                        if (!text) text = fallbackText.trim();
+                        if (!text) { flashPlaceholder("ui_no_speech"); return; }
+                        input.value = text;
+                        send(text);
+                    })
+                    .catch(function (e) {
+                        console.log("Transcription error, using browser text:", e);
+                        var text = fallbackText.trim();
+                        if (text) { input.value = text; send(text); }
+                        else { flashPlaceholder("ui_mic_error", 4200); }
+                    })
+                    .then(function () {
+                        micBusy = false;
+                        micBtn.disabled = false;
+                        if (!input.value) input.placeholder = t("input_placeholder");
+                    });
+            };
+            try { rec.stop(); } catch (e) { rec.onstop(); }
+        }
+
+        // volume-based end-of-speech detection (works for any language and accent)
+        var timer = setInterval(function () {
+            analyser.getFloatTimeDomainData(level);
+            var sum = 0;
+            for (var i = 0; i < level.length; i++) sum += level[i] * level[i];
+            var rms = Math.sqrt(sum / level.length);
+            var now = Date.now();
+
+            if (now - startedAt < 350) { floor.push(rms); return; }
+            if (floor.length) {
+                var avg = floor.reduce(function (a, b) { return a + b; }, 0) / floor.length;
+                threshold = Math.min(0.06, Math.max(0.012, avg * 3));
+                floor = [];
+            }
+            if (rms > threshold) { spoke = true; lastVoice = now; }
+
+            if (spoke && now - lastVoice > 1600) finish(false);          // finished speaking
+            else if (!spoke && now - startedAt > 9000) finish(false);     // nobody spoke
+            else if (now - startedAt > 30000) finish(false);              // safety limit
+        }, 60);
+
+        micCtl = { finish: finish };
+        setListening(true);
+        try { rec.start(); } catch (e) { finish(true); }
     }
 
     /* ---------------- misc controls ---------------- */
